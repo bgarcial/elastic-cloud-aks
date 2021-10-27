@@ -1,0 +1,35 @@
+name: "Terraform Format"
+on:
+  - pull_request
+env:
+  tf_version: 1.0.9
+jobs:
+ terraform_format:
+    name: "Terraform Format"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform/
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@master
+      - name: "Terraform Setup"
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.tf_version }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform version
+        run: |
+          terraform version
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: "Terraform Validate"
+        id: validate
+        run: terraform validate -no-color
+
+      - name: "Terraform Format"
+        id: fmt
+        run: terraform fmt -check --recursive
