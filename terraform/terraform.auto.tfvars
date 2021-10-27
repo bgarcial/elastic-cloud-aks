@@ -1,6 +1,6 @@
-org    = "nmb"
-tenant = "psfc"
-environment  = "stag"
-k8s_version  = "1.20.9"
+org                      = "nmb"
+tenant                   = "psfc"
+environment              = "stag"
+k8s_version              = "1.20.9"
 k8s_orchestrator_version = "1.20.9"
-k8s_node_count = 2
+k8s_node_count           = 2

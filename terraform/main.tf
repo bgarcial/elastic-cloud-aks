@@ -87,10 +87,10 @@ resource "azurerm_kubernetes_cluster" "aks_main" {
     enabled = true
   }
 
-#  service_principal {
-#    client_id     = var.azure_service_principal_client_id
-#    client_secret = var.azure_service_principal_client_secret
-#  }
+  #  service_principal {
+  #    client_id     = var.azure_service_principal_client_id
+  #    client_secret = var.azure_service_principal_client_secret
+  #  }
 
   tags = {
     Environment = local.name
