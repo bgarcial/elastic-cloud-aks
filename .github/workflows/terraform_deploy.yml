@@ -18,11 +18,11 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Executing Azure cli installation script
-        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      # - name: Executing Azure cli installation script
+      #   run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Authenticating to Azure Platform | az login
-        run: az login --service-principal --username ${{ secrets.SERVICE_PRINCIPAL_CLIENT_ID }} --password ${{ secrets.SERVICE_PRINCIPAL_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+      # - name: Authenticating to Azure Platform | az login
+      #   run: az login --service-principal --username ${{ secrets.SERVICE_PRINCIPAL_CLIENT_ID }} --password ${{ secrets.SERVICE_PRINCIPAL_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
       
       - name: "Terraform Setup"
         uses: hashicorp/setup-terraform@v1
