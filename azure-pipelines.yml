@@ -9,8 +9,6 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-
-
 steps:
 - script: |
     az login --service-principal --username $(ARM_CLIENT_ID) --password $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
@@ -47,7 +45,6 @@ steps:
     backendAzureRmContainerName: 'pfcterraformstates'
     backendAzureRmKey: staging.terraform.tfstate
 
-
 - task: TerraformCLI@0
   displayName: 'Terraform validate'
   inputs:
@@ -60,7 +57,6 @@ steps:
     command: fmt 
     workingDirectory: /home/vsts/work/1/s/terraform
 
-
 - task: TerraformCLI@0
   displayName: 'Terraform plan'
   inputs:
@@ -69,3 +65,10 @@ steps:
     environmentServiceName: 'Azure Personal Tenant'
     publishPlanResults: 'staging_env_plan'
     commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID)
+
+- task: TerraformCLI@0
+  displayName: 'Terraform apply'
+  inputs:
+    command: apply
+    environmentServiceName: 'Azure Personal Tenant'
+    workingDirectory: /home/vsts/work/1/s/terraform
