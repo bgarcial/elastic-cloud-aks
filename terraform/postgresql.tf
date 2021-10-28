@@ -6,8 +6,8 @@ resource "azurerm_resource_group" "pgsql-rg" {
 module "postgresql" {
   source = "Azure/postgresql/azurerm"
 
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.pgsql-rg.name
+  location            = azurerm_resource_group.pgsql-rg.location
 
   server_name                  = "postgresql-${var.org}-${var.app}-${var.environment}"
   sku_name                     = "GP_Gen5_2"
