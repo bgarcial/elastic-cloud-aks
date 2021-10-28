@@ -46,3 +46,16 @@ steps:
     backendAzureRmStorageAccountName: 'pfcterraformstates'
     backendAzureRmContainerName: 'pfcterraformstates'
     backendAzureRmKey: staging.terraform.tfstate
+
+
+- task: TerraformCLI@0
+  displayName: 'Terraform validate'
+  inputs:
+    command: validate
+    workingDirectory: /home/vsts/work/1/s/terraform
+
+- task: TerraformCLI@0
+  displayName: 'Terraform format'
+  inputs:
+    command: fmt 
+    workingDirectory: /home/vsts/work/1/s/terraform
