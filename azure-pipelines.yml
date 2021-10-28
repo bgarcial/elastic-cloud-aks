@@ -40,3 +40,10 @@ steps:
   inputs:
     command: init
     workingDirectory: /home/vsts/work/1/s/terraform 
+    backendType: azurerm
+    backendServiceArm: 'Azure Personal Tenant'
+    backendAzureRmResourceGroupName: 'pfc-terraform-envs-states'
+    backendAzureRmResourceGroupLocation: 'westeurope'
+    backendAzureRmStorageAccountName: 'pfcterraformstates'
+    backendAzureRmContainerName: 'pfcterraformstates'
+    backendAzureRmKey: staging.terraform.tfstate
