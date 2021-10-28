@@ -27,45 +27,47 @@ jobs:
         # run: az login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
         # run: read -sp "Azure password: " AZ_PASS && echo && az login -u <username> -p $AZ_PASS
 
-      - name: "Dowloading terraform"
-        run: | 
-          wget https://releases.hashicorp.com/terraform/1.0.9/terraform_1.0.9_linux_amd64.zip 
-          unzip terraform_1.0.9_linux_amd64.zip 
-      - name: "Creating symbolic link"
-        run: |  
-          cd /usr/bin/ 
-          sudo ln -s /home/runner/work/postfacto-infra/postfacto-infra/terraform terraform
+      # - name: "Dowloading terraform"
+      #   run: | 
+      #     wget https://releases.hashicorp.com/terraform/1.0.9/terraform_1.0.9_linux_amd64.zip 
+      #     unzip terraform_1.0.9_linux_amd64.zip 
+      # - name: "Creating symbolic link"
+      #   run: |  
+      #     cd /usr/bin/ 
+      #     sudo ln -s /home/runner/work/postfacto-infra/postfacto-infra/terraform terraform
 
-      - name: "Testing terraform installed"
-        run: |
-         cd /home/runner/work/postfacto-infra/postfacto-infra/terraform
-         terraform version
-
-
-      #- name: "Terraform Setup"
-      #  uses: hashicorp/setup-terraform@v1
-      #  with:
-      #    terraform_version: ${{ env.tf_version }}
-      #    cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      # - name: Terraform version
-      #  run: |
+      # - name: "Testing terraform installed"
+      #   run: |
+      #    cd /home/runner/work/postfacto-infra/postfacto-infra/terraform
       #    terraform version
+
+      - name: "Deploying Storage account and KeyVault"
+        run: ./setup-resources-operations.sh
+
+      - name: "Terraform Setup"
+        uses: hashicorp/setup-terraform@v1
+        with:
+         terraform_version: ${{ env.tf_version }}
+         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform version
+        run: |
+         terraform version
       
       - name: Terraform Init
-        # id: init
+        id: init
         run: terraform init
 
       - name: "Terraform Validate"
-        # id: validate
+        id: validate
         run: terraform validate -no-color
 
       - name: "Terraform Format"
-        # id: fmt
+        id: fmt
         run: terraform fmt -check --recursive
       
       - name: "Terraform Plan"
-        # id: plan
+        id: plan
         run: terraform plan -no-color
       
       - run: echo ${{ steps.plan.outputs.stdout }}
