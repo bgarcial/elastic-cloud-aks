@@ -1,75 +1,75 @@
-name: "Terraform Deploy"
-on:
-  - pull_request
-env:
-  tf_version: 1.0.9
-jobs:
- terraform_format:
-    # name: "Terraform Format"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform/
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v2
+# name: "Terraform Deploy"
+# on:
+#   - pull_request
+# env:
+#   tf_version: 1.0.9
+# jobs:
+#  terraform_format:
+#     # name: "Terraform Format"
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: ./terraform/
+#     steps:
+#       - name: "Checkout"
+#         uses: actions/checkout@v2
 
-      - name: 'Login via Azure CLI..'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+#       - name: 'Login via Azure CLI..'
+#         uses: azure/login@v1
+#         with:
+#           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      # - name: Executing Azure cli installation script
-        # run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+#       # - name: Executing Azure cli installation script
+#         # run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Authenticating to Azure Platform | az login
-        run: az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
-        # run: az login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
+#       - name: Authenticating to Azure Platform | az login
+#         run: az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
+#         # run: az login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
 
-      # - name: "Dowloading terraform"
-      #   run: | 
-      #     wget https://releases.hashicorp.com/terraform/1.0.9/terraform_1.0.9_linux_amd64.zip 
-      #     unzip terraform_1.0.9_linux_amd64.zip 
-      # - name: "Creating symbolic link"
-      #   run: |  
-      #     cd /usr/bin/ 
-      #     sudo ln -s /home/runner/work/postfacto-infra/postfacto-infra/terraform terraform
+#       # - name: "Dowloading terraform"
+#       #   run: | 
+#       #     wget https://releases.hashicorp.com/terraform/1.0.9/terraform_1.0.9_linux_amd64.zip 
+#       #     unzip terraform_1.0.9_linux_amd64.zip 
+#       # - name: "Creating symbolic link"
+#       #   run: |  
+#       #     cd /usr/bin/ 
+#       #     sudo ln -s /home/runner/work/postfacto-infra/postfacto-infra/terraform terraform
 
-      # - name: "Testing terraform installed"
-      #   run: |
-      #    cd /home/runner/work/postfacto-infra/postfacto-infra/terraform
-      #    terraform version
+#       # - name: "Testing terraform installed"
+#       #   run: |
+#       #    cd /home/runner/work/postfacto-infra/postfacto-infra/terraform
+#       #    terraform version
 
-      - name: "Deploying Storage account for terraform state"
-        run: ./setup-resources-operations.sh
+#       - name: "Deploying Storage account for terraform state"
+#         run: ./setup-resources-operations.sh
 
-      - name: "Terraform Setup"
-        uses: hashicorp/setup-terraform@v1
-        with:
-         terraform_version: ${{ env.tf_version }}
-         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#       - name: "Terraform Setup"
+#         uses: hashicorp/setup-terraform@v1
+#         with:
+#          terraform_version: ${{ env.tf_version }}
+#          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform version
-        run: |
-         terraform version
+#       - name: Terraform version
+#         run: |
+#          terraform version
       
-      - name: Terraform Init
-        id: init
-        run: terraform init
+#       - name: Terraform Init
+#         id: init
+#         run: terraform init
 
-      - name: "Terraform Validate"
-        id: validate
-        run: terraform validate -no-color
+#       - name: "Terraform Validate"
+#         id: validate
+#         run: terraform validate -no-color
 
-      - name: "Terraform Format"
-        id: fmt
-        run: terraform fmt -check --recursive
+#       - name: "Terraform Format"
+#         id: fmt
+#         run: terraform fmt -check --recursive
       
-      #- name: "Terraform Plan"
-        #id: plan
-        # run: terraform plan -var=subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }} -var=client_id=${{ secrets.ARM_CLIENT_ID }} -var=client_secret=${{ secrets.ARM_CLIENT_SECRET }} -var=tenant_id=${{ secrets.ARM_TENANT_ID }} -no-color
-        #run: terraform plan -no-color
+#       #- name: "Terraform Plan"
+#         #id: plan
+#         # run: terraform plan -var=subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }} -var=client_id=${{ secrets.ARM_CLIENT_ID }} -var=client_secret=${{ secrets.ARM_CLIENT_SECRET }} -var=tenant_id=${{ secrets.ARM_TENANT_ID }} -no-color
+#         #run: terraform plan -no-color
 
-      - run: echo ${{ steps.plan.outputs.stdout }}
-      - run: echo ${{ steps.plan.outputs.stderr }}
-      - run: echo ${{ steps.plan.outputs.exitcode }}
+#       - run: echo ${{ steps.plan.outputs.stdout }}
+#       - run: echo ${{ steps.plan.outputs.stderr }}
+#       - run: echo ${{ steps.plan.outputs.exitcode }}
