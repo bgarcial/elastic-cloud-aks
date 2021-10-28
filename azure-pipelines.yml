@@ -9,6 +9,9 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+  variables:
+  - group: service_principal_data
+
 steps:
 - script: echo Hello, this is the pipeline to execute terraform workflow!
   displayName: 'Hello!'
