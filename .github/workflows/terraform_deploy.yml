@@ -14,17 +14,19 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@master
 
-      - name: 'Login via Azure CLI..'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # - name: 'Login via Azure CLI..'
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      # - name: Executing Azure cli installation script
-      #   run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      - name: Executing Azure cli installation script
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      # - name: Authenticating to Azure Platform | az login
-      #   run: az login --service-principal --username ${{ secrets.SERVICE_PRINCIPAL_CLIENT_ID }} --password ${{ secrets.SERVICE_PRINCIPAL_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-      
+      - name: Authenticating to Azure Platform | az login
+        run: az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
+        # run: az login -u ${{ secrets.USERNAME }} -P ${{ secrets.PASSWORD }}
+        # run: read -sp "Azure password: " AZ_PASS && echo && az login -u <username> -p $AZ_PASS
+
       - name: "Terraform Setup"
         uses: hashicorp/setup-terraform@v1
         with:
