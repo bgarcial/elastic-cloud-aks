@@ -23,23 +23,23 @@ variable "environment" {
 }
 
 variable "subscription_id" {
-    type = string
-    default = "9148bd11-f32b-4b5d-a6c0-5ac5317f29ca"
+  type    = string
+  default = "9148bd11-f32b-4b5d-a6c0-5ac5317f29ca"
 }
 
 variable "client_id" {
-    type = string
-    default = "15b673ac-a154-43e7-94d5-a293366d1dea"
+  type    = string
+  default = "15b673ac-a154-43e7-94d5-a293366d1dea"
 }
 
 variable "client_secret" {
-    type = string
-    default = "r6yJoSN4uRTH94RfDZcUnvUzzn_4cj6pia"
+  type    = string
+  default = "r6yJoSN4uRTH94RfDZcUnvUzzn_4cj6pia"
 }
 
 variable "tenant_id" {
-    type = string
-    default = "4e6b0716-50ea-4664-90a8-998f60996c44"
+  type    = string
+  default = "4e6b0716-50ea-4664-90a8-998f60996c44"
 }
 
 
