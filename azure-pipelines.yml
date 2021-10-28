@@ -14,8 +14,7 @@ steps:
   displayName: 'Hello!'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
+    az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
     
 
-  displayName: 'Run a multi-line script'
+  displayName: 'Authenticating to Azure'
