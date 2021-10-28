@@ -34,7 +34,7 @@ resource "azurerm_resource_group" "aks-rg" {
 module "aks_name" {
   source   = "gsoft-inc/naming/azurerm//modules/general/resource_group"
   name     = "aks"
-  prefixes = [var.org, var.tenant, var.environment]
+  prefixes = [var.org, var.app, var.environment]
 }
 
 resource "azurerm_log_analytics_workspace" "monitor" {
@@ -103,4 +103,3 @@ resource "azurerm_kubernetes_cluster" "aks_main" {
     ]
   }
 }
-

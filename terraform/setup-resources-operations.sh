@@ -59,9 +59,9 @@ export TF_VAR_tenant_id="4e6b0716-50ea-4664-90a8-998f60996c44"
 # That I created previously to be used in github actions.
 # The secret in that KeyVAULT was created manually.
 KEYVAULT_NAME=$customer_prefix-operations-kv
-echo "Creating $KEYVAULT_NAME key vault..."
-az keyvault create -g $KEYVAULT_RESOURCE_GROUP_NAME -l westeurope -n $KEYVAULT_NAME
-echo "Key vault $KEYVAULT_NAME created."
+# echo "Creating $KEYVAULT_NAME key vault..."
+# az keyvault create -g $KEYVAULT_RESOURCE_GROUP_NAME -l westeurope -n $KEYVAULT_NAME
+# echo "Key vault $KEYVAULT_NAME created."
  
 # Getting the nmbrs service principal client secret 
 SECRET_NAME=nmbrs-client-secret
