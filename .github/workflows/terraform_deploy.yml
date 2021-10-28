@@ -68,8 +68,8 @@ jobs:
       - name: "Terraform Plan"
         id: plan
         # run: terraform plan -var=subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }} -var=client_id=${{ secrets.ARM_CLIENT_ID }} -var=client_secret=${{ secrets.ARM_CLIENT_SECRET }} -var=tenant_id=${{ secrets.ARM_TENANT_ID }} -no-color
-        run: terraform plan -no-color -var=username=${{ secrets.USERNAME }} -var=password=${{ secrets.PASSWORD }}
-
+        run: terraform plan -no-color
+        
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
