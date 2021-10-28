@@ -31,11 +31,15 @@ jobs:
         run: | 
           wget https://releases.hashicorp.com/terraform/1.0.9/terraform_1.0.9_linux_amd64.zip 
           unzip terraform_1.0.9_linux_amd64.zip 
-          pwd 
-          ls 
+      - name: "Creating symbolic link"
+        run: |  
           cd /usr/bin/ 
-          ls
-          # sudo ln -s /home/vsts/work/r1/a/linux-amd64/helm helm3
+          sudo ln -s /home/runner/work/postfacto-infra/postfacto-infra/terraform terraform
+
+      - name: "testing tf"
+        run: |
+         cd /home/runner/work/postfacto-infra/postfacto-infra/terraform
+         terraform version
 
 
       - name: "Terraform Setup"
