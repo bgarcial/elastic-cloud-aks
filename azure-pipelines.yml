@@ -9,8 +9,7 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-  variables:
-  - group: service_principal_data
+
 
 steps:
 - script: |
@@ -23,7 +22,10 @@ steps:
   displayName: Install Terraform
 
 - script: |
+    ls 
+    pwd
     cd terraform
+    ls
     terraform init
   displayName: Placing terraform directory path 
 
@@ -37,3 +39,4 @@ steps:
   displayName: 'Initializing Terraform'
   inputs:
     command: init
+    workingDirectory: 
