@@ -30,6 +30,14 @@ variable "client_secret" {}
 
 variable "tenant_id" {}
 
+variable "username" {
+    type = string
+}
+
+variable "password" {
+    type = string
+}
+
 variable "k8s_version" { type = string }
 variable "k8s_orchestrator_version" { type = string }
 variable "k8s_node_count" { type = string }

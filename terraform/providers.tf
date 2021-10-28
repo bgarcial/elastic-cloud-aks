@@ -13,6 +13,8 @@ terraform {
 provider "azurerm" {
   # Configuration options
   features {}
+  username = var.username
+  password = var.password
 
 }
 
