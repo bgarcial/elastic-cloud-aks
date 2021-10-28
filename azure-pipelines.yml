@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: Hello, this is the pipeline to execute terraform workflow!
+- script: echo Hello, this is the pipeline to execute terraform workflow!
   displayName: 'Hello!'
 
 - script: |
