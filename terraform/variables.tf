@@ -6,11 +6,11 @@ variable "org" {
   }
 }
 
-variable "tenant" {
+variable "app" {
   type = string
   validation {
-    condition     = length(var.tenant) <= 4
-    error_message = "The tenant variable cannot be larger than 4 characters."
+    condition     = length(var.app) <= 4
+    error_message = "The app variable cannot be larger than 4 characters."
   }
 }
 
@@ -20,6 +20,16 @@ variable "environment" {
     condition     = length(var.environment) <= 4
     error_message = "The environment variable cannot be larger than 4 characters."
   }
+}
+
+variable "subscription_id" {}
+
+variable "client_id" {}
+
+variable "client_secret" {}
+
+variable "tenant_id" {
+  type    = string
 }
 
 variable "k8s_version" { type = string }
