@@ -22,21 +22,13 @@ variable "environment" {
   }
 }
 
-variable "subscription_id" {
+variable "subscription_id" {}
 
-}
+variable "client_id" {}
 
-variable "client_id" {
+variable "client_secret" {}
 
-}
-
-variable "client_secret" {
-
-}
-
-variable "tenant_id" {
-
-}
+variable "tenant_id" {}
 
 
 variable "k8s_version" { type = string }
@@ -45,4 +37,15 @@ variable "k8s_node_count" { type = string }
 variable "k8s_node_size" {
   type    = string
   default = "Standard_D4_v3"
+}
+
+variable "db_login" {
+    type = string
+    description = "PostgreSQL DB User"
+}
+
+variable "db_password" {
+  type = string
+  sensitive = true
+  description = "PostgreSQL DB Password"
 }
