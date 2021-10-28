@@ -42,7 +42,7 @@ jobs:
       #    terraform version
 
       - name: "Deploying Storage account and KeyVault"
-        run: ./setup-resources-operations.sh
+        run: pwd
 
       - name: "Terraform Setup"
         uses: hashicorp/setup-terraform@v1
