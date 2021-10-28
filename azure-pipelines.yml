@@ -59,3 +59,11 @@ steps:
   inputs:
     command: fmt 
     workingDirectory: /home/vsts/work/1/s/terraform
+
+- task: TerraformCLI@0
+  displayName: 'Terraform plan'
+  inputs:
+    command: plan
+    workingDirectory: /home/vsts/work/1/s/terraform
+    environmentServiceName: 'Azure Personal Tenant'
+    publishPlanResults: 'staging_env_plan'
