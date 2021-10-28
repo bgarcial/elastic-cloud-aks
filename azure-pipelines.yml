@@ -16,17 +16,24 @@ steps:
 - script: |
     az login --service-principal --username $(ARM_CLIENT_ID) --password $(ARM_CLIENT_SECRET) --tenant $(ARM_TENANT_ID)
   displayName: 'Authenticating to Azure'
-
-- script: |
-    pwd
-    ls
-  displayName: Checking path  
+ 
 - task: terraformInstaller@0
   inputs:
     terraformVersion: '1.0.9'
   displayName: Install Terraform
 
+- script: |
+    cd terraform
+    ls
+  displayName: Placing terraform directory path 
+
 - task: TerraformCLI@0
-  displayName: 'check terraform version'
+  displayName: 'Check terraform version'
   inputs:
     command: version
+
+
+- task: TerraformCLI@0
+  displayName: 'Initializing Terraform'
+  inputs:
+    command: init
