@@ -16,17 +16,17 @@ module "postgresql" {
   geo_redundant_backup_enabled = false
   administrator_login          = var.db_login
   administrator_password       = var.db_password
-  server_version               = "9.5"
+  server_version               = "11"
   ssl_enforcement_enabled      = false
   db_names                     = ["postfacto-staging-db"]
   db_charset                   = "UTF8"
   db_collation                 = "English_United States.1252"
 
-#   firewall_rule_prefix = "firewall-"
-#   firewall_rules = [
-#     { name = "test1", start_ip = "10.0.0.5", end_ip = "10.0.0.8" },
-#     { start_ip = "127.0.0.0", end_ip = "127.0.1.0" },
-#   ]
+  #   firewall_rule_prefix = "firewall-"
+  #   firewall_rules = [
+  #     { name = "test1", start_ip = "10.0.0.5", end_ip = "10.0.0.8" },
+  #     { start_ip = "127.0.0.0", end_ip = "127.0.1.0" },
+  #   ]
 
   vnet_rule_name_prefix = "postgresql-vnet-rule-"
   vnet_rules = [

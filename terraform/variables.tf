@@ -40,12 +40,12 @@ variable "k8s_node_size" {
 }
 
 variable "db_login" {
-    type = string
-    description = "PostgreSQL DB User"
+  type        = string
+  description = "PostgreSQL DB User"
 }
 
 variable "db_password" {
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
   description = "PostgreSQL DB Password"
 }
