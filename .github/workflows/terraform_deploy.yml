@@ -1,18 +1,18 @@
-name: "Terraform Format"
+name: "Terraform Deploy"
 on:
   - pull_request
 env:
   tf_version: 1.0.9
 jobs:
  terraform_format:
-    name: "Terraform Format"
+    # name: "Terraform Format"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./terraform/
     steps:
       - name: "Checkout"
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
 
       - name: 'Login via Azure CLI..'
         uses: azure/login@v1
@@ -26,6 +26,17 @@ jobs:
         # run: az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
         # run: az login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
         # run: read -sp "Azure password: " AZ_PASS && echo && az login -u <username> -p $AZ_PASS
+
+      - name: "Dowloading terraform"
+        run: | 
+          wget https://releases.hashicorp.com/terraform/1.0.9/terraform_1.0.9_linux_amd64.zip \
+          unzip terraform_1.0.9_linux_amd64.zip \
+          pwd \
+          ls \
+          cd /usr/bin/ \
+          ls
+          # sudo ln -s /home/vsts/work/r1/a/linux-amd64/helm helm3
+
 
       - name: "Terraform Setup"
         uses: hashicorp/setup-terraform@v1
