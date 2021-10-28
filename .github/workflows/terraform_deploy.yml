@@ -22,10 +22,9 @@ jobs:
       # - name: Executing Azure cli installation script
         # run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      # - name: Authenticating to Azure Platform | az login
-        # run: az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
+      - name: Authenticating to Azure Platform | az login
+        run: az login --service-principal --username ${{ secrets.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ secrets.ARM_TENANT_ID }}
         # run: az login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
-        # run: read -sp "Azure password: " AZ_PASS && echo && az login -u <username> -p $AZ_PASS
 
       # - name: "Dowloading terraform"
       #   run: | 
@@ -69,7 +68,8 @@ jobs:
       - name: "Terraform Plan"
         id: plan
         run: terraform plan -var=subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }} -var=client_id=${{ secrets.ARM_CLIENT_ID }} -var=client_secret=${{ secrets.ARM_CLIENT_SECRET }} -var=tenant_id=${{ secrets.ARM_TENANT_ID }} -no-color
-      
+        # run: terraform plan -no-color
+
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
       - run: echo ${{ steps.plan.outputs.exitcode }}
