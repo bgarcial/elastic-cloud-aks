@@ -93,7 +93,7 @@ resource "azurerm_kubernetes_cluster" "aks_main" {
   #  }
 
   tags = {
-    Environment = local.name
+    Environment = "staging"
   }
 
 

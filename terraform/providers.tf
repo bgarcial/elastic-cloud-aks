@@ -23,9 +23,4 @@ provider "azurerm" {
 # Block to play around with the state if needed
 terraform {
   backend "azurerm" {}
-  # resource_group_name  = "pfc-terraform-envs-states"
-  # storage_account_name = "pfcterraformstates"
-  # container_name       = "pfcterraformstates"
-  # key                  = "staging.terraform.tfstate"
-  # }
 }
