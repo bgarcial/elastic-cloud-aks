@@ -24,7 +24,7 @@ steps:
 
 - script: |
     cd terraform
-    ls
+    terraform init
   displayName: Placing terraform directory path 
 
 - task: TerraformCLI@0
