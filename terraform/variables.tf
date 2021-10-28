@@ -28,9 +28,7 @@ variable "client_id" {}
 
 variable "client_secret" {}
 
-variable "tenant_id" {
-  type = string
-}
+variable "tenant_id" {}
 
 variable "k8s_version" { type = string }
 variable "k8s_orchestrator_version" { type = string }

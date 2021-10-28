@@ -43,16 +43,17 @@ echo "An storage blob container called $CONTAINER_NAME  was created to store the
 
 # ----
 # Creating KeyVault instance to store a service principal password
-KEYVAULT_RESOURCE_GROUP_NAME=$customer_prefix-$customer_environment-kv
-az group create --name $KEYVAULT_RESOURCE_GROUP_NAME --location westeurope
+# KEYVAULT_RESOURCE_GROUP_NAME=$customer_prefix-$customer_environment-kv
+# az group create --name $KEYVAULT_RESOURCE_GROUP_NAME --location westeurope
 
 # Assigning name to the resource group which would contain the K8s cluster
 # export TF_VAR_infra_resource_group_name=$KEYVAULT_RESOURCE_GROUP_NAME
 
 # Determining which subscription create the resources
 # Exposing subscription and tenant id to be readed from terraform scripts
-export TF_VAR_subscription_id="9148bd11-f32b-4b5d-a6c0-5ac5317f29ca"
-export TF_VAR_tenant_id="4e6b0716-50ea-4664-90a8-998f60996c44"
+# export TF_VAR_subscription_id=9148bd11-f32b-4b5d-a6c0-5ac5317f29ca
+# export TF_VAR_tenant_id=4e6b0716-50ea-4664-90a8-998f60996c44
+# export TF_VAR_client_id=15b673ac-a154-43e7-94d5-a293366d1dea
 
 # Create an Azure KeyVault
 # This KeyVault instance will be used to store the service principal secret
@@ -64,7 +65,7 @@ KEYVAULT_NAME=$customer_prefix-operations-kv
 # echo "Key vault $KEYVAULT_NAME created."
  
 # Getting the nmbrs service principal client secret 
-SECRET_NAME=nmbrs-client-secret
-nmbrs_assessment_client_secret=$(az keyvault secret show -n $SECRET_NAME --vault-name $KEYVAULT_NAME --query value --output tsv)
+# SECRET_NAME=nmbrs-client-secret
+# nmbrs_assessment_client_secret=$(az keyvault secret show -n $SECRET_NAME --vault-name $KEYVAULT_NAME --query value --output tsv)
 # Exposing nmbrs_assessment_client_secret variable to be readed from terraform scripts variables
-export TF_VAR_client_secret=$nmbrs_assessment_client_secret
+# export TF_VAR_client_secret=$nmbrs_assessment_client_secret
