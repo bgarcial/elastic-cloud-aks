@@ -29,7 +29,7 @@ variable "client_id" {}
 variable "client_secret" {}
 
 variable "tenant_id" {
-  type    = string
+  type = string
 }
 
 variable "k8s_version" { type = string }
