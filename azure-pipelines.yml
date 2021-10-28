@@ -60,7 +60,12 @@ steps:
     command: fmt 
     workingDirectory: /home/vsts/work/1/s/terraform
 
- 
+- task: TerraformCLI@0
+  displayName: 'Terraform unlock state'
+  inputs:
+    command: forceunlock f0c43ef4-8d08-5d5f-235b-00b659f0eb16 
+    workingDirectory: /home/vsts/work/1/s/terraform
+    environmentServiceName: 'Azure Personal Tenant' 
 
 - task: TerraformCLI@0
   displayName: 'Terraform plan'
