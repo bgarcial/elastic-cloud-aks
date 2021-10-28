@@ -63,7 +63,7 @@ steps:
 - task: TerraformCLI@0
   displayName: 'Terraform plan'
   inputs:
-    command: plan "-lock=false"
+    command: plan -lock=false
     workingDirectory: /home/vsts/work/1/s/terraform
     environmentServiceName: 'Azure Personal Tenant'
     publishPlanResults: 'staging_env_plan'
