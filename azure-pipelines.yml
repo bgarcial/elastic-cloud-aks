@@ -39,4 +39,4 @@ steps:
   displayName: 'Initializing Terraform'
   inputs:
     command: init
-    workingDirectory: 
+    workingDirectory: /home/vsts/work/1/s/terraform 
