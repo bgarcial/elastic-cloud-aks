@@ -14,10 +14,11 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@master
 
-      # - name: 'Login via Azure CLI..'
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 'Login via Azure CLI..'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
       # - name: Executing Azure cli installation script
       #   run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
