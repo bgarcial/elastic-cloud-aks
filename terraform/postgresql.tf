@@ -22,15 +22,14 @@ module "postgresql" {
   db_charset                   = "UTF8"
   db_collation                 = "English_United States.1252"
 
-  #   firewall_rule_prefix = "firewall-"
-  #   firewall_rules = [
-  #     { name = "test1", start_ip = "10.0.0.5", end_ip = "10.0.0.8" },
-  #     { start_ip = "127.0.0.0", end_ip = "127.0.1.0" },
-  #   ]
+  firewall_rule_prefix = "firewall-"
+  firewall_rules = [
+    { name = "my-home-ip", start_ip = "213.127.120.249", end_ip = "213.127.120.249" }
+  ]
 
   vnet_rule_name_prefix = "postgresql-vnet-rule-"
   vnet_rules = [
-    { name = "aks-subnet", subnet_id = module.vnet.vnet_subnets[0] }
+    { name = "aks-subnet", subnet_id = module.vnet.vnet_subnets[0] },
   ]
 
   tags = {
