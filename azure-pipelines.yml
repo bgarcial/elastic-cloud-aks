@@ -73,32 +73,3 @@ steps:
     environmentServiceName: 'Azure Personal Tenant'
     workingDirectory: /home/vsts/work/1/s/terraform
     commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID) -var db_login=$(DB_USERNAME) -var db_password=$(DB_PASSWORD)
-    
-
-
-
-
-
-   
-apiVersion: networking.k8s.io/v1beta1 # extensions/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    # add an annotation indicating the issuer to use.
-    cert-manager.io/cluster-issuer: letsencrypt-prod # letsencrypt-staging
-    kubernetes.io/ingress.class: nginx
-  name: backend-site-ingress
-  namespace: backend
-spec:
-  rules:
-  - host: backend.bgarcial.me
-    http:
-      paths:
-      - backend:
-          serviceName: backend-demo
-          servicePort: 80
-        path: /
-  tls: # < placing a host in the TLS config will indicate a cert should be created
-  - hosts:
-    - backend.bgarcial.me
-    secretName: letsencrypt-prod # letsencrypt-staging
