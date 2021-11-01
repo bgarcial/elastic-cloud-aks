@@ -1,5 +1,7 @@
 # Postfacto Infrastructure Deployment
 
+- **Infrastructure Repository:** [https://github.com/bgarcial/postfacto-infra](https://github.com/bgarcial/postfacto-infra)
+
 A terraform workflow has been created to deploy the following infrastructure resources that support postfacto application deployment:
 
 ## Kubernetes Cluster: 
@@ -75,12 +77,49 @@ In the same way the postgread headless service deployed alongside the helm chart
 ## Storage account and blob container.
 
 From the [`setup-resources-operations.sh`](https://github.com/bgarcial/postfacto-infra/blob/staging/terraform/setup-resources-operations.sh#L22-L42)
-bash script (which is being executed from the azure pipeline infrastructure), 
+bash script (which is being executed from the [azure pipeline infrastructure](https://github.com/bgarcial/postfacto-infra/blob/staging/azure-pipelines.yml#L22-L26)), 
+an storage account and a blob container is being created in order to store the terraform state.
 
+![Terraform state file stored on the blob container](https://cldup.com/TbWbCeeNmH.png)
+
+talk here about tf state and that it can also be created from az tf devos task instead of use a shell approach
+
+---
+
+# Executing the terraform workflow - Azure DevOps Pipeline
+
+- As I mentioned previously, an [azure pipeline](https://github.com/bgarcial/postfacto-infra/blob/staging/azure-pipelines.yml#L22-L26)
+is created on Azure DevOps, and it is triggered every time a push is done on staging branch on the github repository
+
+- I am using this [Azure pipelines terraform task](https://marketplace.visualstudio.com/items?itemName=charleszipp.azure-pipelines-tasks-terraform) 
+to define and implement the terraform workflow (`init` | `validate` | `fmt` | `plan`| `apply`) to manage the above-mentioned infrastructure resources.
+    - To make it work is necessary to install that task into the Az DevOps organization.
+
+- [Click here](https://dev.azure.com/bgarcial/postfacto-infra/_build?definitionId=7) to access to the pipeline on Azure DevOps.
+
+- This is how the pipeline looks like
+
+![](https://cldup.com/PP6RjnQX_o.png)
+
+- With the terraform task used, we can even create the storage account from the yaml pipeline definition since it has 
+an automate remote backend creation feature and it is enabled by toggling on the `ensureBackend` input parameter to `true`
+and providing the name of the resource group, storagr account and the key state file to be created. 
+It takes in advance of the use of the Azure ARM Service connection that was needed to create previously in order to connect Azure DevOps with Azure platform
+I created it by using an existing service principal created previously. 
+
+Is opportune to mention I am just accessing to the existing storage account and blob container and key state file I created via bash approach.
+
+
+---
 
 # Infrastructure Requirements
 
 - Postfacto persistent data must be stored in a way that in case of node or cluster failure, the same data will not be lost.
 
-Since a fully managed Azure Database PostgreSQL service is created, I don't need to worry about persistence of data inside the cluster (pv)
-The data on the postgresql database will be there 
+- The Postfacto app pods cannot be deployed on the same nodes as the database and Redis.
+
+Since a fully managed Azure Database PostgreSQL service is created and [a connection from postfacto AKS pods is done](https://github.com/bgarcial/postfacto-platform/blob/staging/helm/charts/postfacto/templates/deployment.yaml#L67-L91),  
+I don't need to worry about data persistence inside the cluster (the helm chart comes with a containerized postgres service and creates a pv)
+So the data on the postgresql databases will be there.
+
+![](https://cldup.com/9My3M-3q-y.png)
