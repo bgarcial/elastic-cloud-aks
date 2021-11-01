@@ -18,7 +18,7 @@ module "postgresql" {
   administrator_password       = var.db_password
   server_version               = "11"
   ssl_enforcement_enabled      = false
-  db_names                     = ["postfacto-staging-db", "postfacto-4-1-0", "postfacto-4-2-0"]
+  db_names                     = ["postfacto-staging-db", "postfacto-4-1-0", "postfacto-4-2-0", "postfacto-secrets"]
   db_charset                   = "UTF8"
   db_collation                 = "English_United States.1252"
 
