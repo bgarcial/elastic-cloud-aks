@@ -123,3 +123,10 @@ I don't need to worry about data persistence inside the cluster (the helm chart 
 So the data on the postgresql databases will be there.
 
 ![](https://cldup.com/9My3M-3q-y.png)
+
+---
+
+# Postfacto Platform Deployment
+
+The postfacto helm chart will be deployed across a bunch of namespaces inside AKS cluster.
+The documentation about this is available at [postfacto-platform repository](https://github.com/bgarcial/postfacto-platform/blob/staging/README.md)
