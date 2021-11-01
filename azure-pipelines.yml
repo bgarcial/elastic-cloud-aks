@@ -20,10 +20,8 @@ steps:
   displayName: Install Terraform
 
 - script: |
-    ls 
-    pwd
-    cd terraform
-    ls
+    chmod +x setup-resources-operations.sh
+    ./setup-resources-operations.sh
   displayName: Placing terraform directory path 
 
 - task: TerraformCLI@0
