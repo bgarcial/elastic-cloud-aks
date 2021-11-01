@@ -20,9 +20,10 @@ steps:
   displayName: Install Terraform
 
 - script: |
+    cd /home/vsts/work/1/s/terraform
     chmod +x setup-resources-operations.sh
     ./setup-resources-operations.sh
-  displayName: Placing terraform directory path 
+  displayName: Creating storage account and blob container for terraform state 
 
 - task: TerraformCLI@0
   displayName: 'Check terraform version'
