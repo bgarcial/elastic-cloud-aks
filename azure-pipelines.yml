@@ -20,10 +20,10 @@ steps:
   displayName: Install Terraform
 
 - script: |
-    cd /home/vsts/work/1/s/terraform
-    chmod +x setup-resources-operations.sh
-    ./setup-resources-operations.sh
-  displayName: Creating storage account and blob container for terraform state 
+    cd /home/vsts/work/1/s/terraform/scripts
+    chmod +x create-sa-blob-container.sh
+    ./create-sa-blob-container.sh
+  displayName: Creating blob container for terraform state and eck snapshots 
 
 - task: TerraformCLI@0
   displayName: 'Check terraform version'
@@ -69,6 +69,6 @@ steps:
   displayName: 'Terraform apply'
   inputs:
     command: apply
-    environmentServiceName: 'Azure Personal Tenant'
+    environmentServiceName: 'Azure-Personal-Subscription'
     workingDirectory: /home/vsts/work/1/s/terraform
     commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID) -var db_login=$(DB_USERNAME) -var db_password=$(DB_PASSWORD)
