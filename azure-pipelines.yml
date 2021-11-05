@@ -63,7 +63,7 @@ steps:
     workingDirectory: /home/vsts/work/1/s/terraform
     environmentServiceName: 'Azure-Personal-Subscription'
     publishPlanResults: 'staging_env_plan'
-    commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID) -var db_login=$(DB_USERNAME) -var db_password=$(DB_PASSWORD)
+    commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID)
 
 - task: TerraformCLI@0
   displayName: 'Terraform apply'
@@ -71,4 +71,4 @@ steps:
     command: apply
     environmentServiceName: 'Azure-Personal-Subscription'
     workingDirectory: /home/vsts/work/1/s/terraform
-    commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID) -var db_login=$(DB_USERNAME) -var db_password=$(DB_PASSWORD)
+    commandOptions: -var client_id=$(ARM_CLIENT_ID) -var client_secret=$(ARM_CLIENT_SECRET) -var subscription_id=$(ARM_SUBSCRIPTION_ID) -var tenant_id=$(ARM_TENANT_ID)
