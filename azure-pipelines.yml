@@ -20,7 +20,7 @@ steps:
   displayName: Install Terraform
 
 - script: |
-    cd /home/vsts/work/1/s/terraform/scripts
+    cd /home/vsts/work/1/s/scripts
     chmod +x create-sa-blob-container.sh
     ./create-sa-blob-container.sh
   displayName: Creating blob container for terraform state and eck snapshots 
