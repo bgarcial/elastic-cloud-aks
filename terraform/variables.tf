@@ -2,7 +2,7 @@ variable "org" {
   type = string
   validation {
     condition     = length(var.org) <= 3
-    error_message = "The org variable cannot be larger than 3 characters."
+    error_message = "The org variable cannot be larger than 3 characters!"
   }
 }
 
