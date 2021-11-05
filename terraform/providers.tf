@@ -7,6 +7,9 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
+    http = {
+      source = "hashicorp/http"
+    }
   }
 }
 
@@ -22,5 +25,10 @@ provider "azurerm" {
 
 # Block to play around with the state if needed
 terraform {
-  backend "azurerm" {}
+  backend "azurerm" {
+    # resource_group_name  = "eck-terraform-envs-states"
+    # storage_account_name = "eckterraform"
+    # container_name       = "eck-tf-state"
+    # key                  = "staging.terraform.tfstate" 
+  }
 }

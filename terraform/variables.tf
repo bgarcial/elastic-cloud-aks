@@ -38,14 +38,3 @@ variable "k8s_node_size" {
   type    = string
   default = "Standard_D4_v3"
 }
-
-variable "db_login" {
-  type        = string
-  description = "PostgreSQL DB User"
-}
-
-variable "db_password" {
-  type        = string
-  sensitive   = true
-  description = "PostgreSQL DB Password"
-}

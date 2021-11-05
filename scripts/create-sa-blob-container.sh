@@ -3,7 +3,7 @@
 # Standard settings values
 # The following values should be modified by customer.
 # Global variables to assign name conventions to resources
-customer_prefix=pfc
+customer_prefix=eck
 customer_environment=staging
 
 # Exporting $customer_prefix and $customer_environment variables to be available from Terraform scripts
@@ -22,7 +22,7 @@ echo "Was created the resource group: $RESOURCE_GROUP_NAME"
 # STORING TERRAFORM STATE FILES
 # Create storage account
 # This storage account will be used for store the terraform state files for environments deployments
-STORAGE_ACCOUNT_NAME=pfcterraformstates
+STORAGE_ACCOUNT_NAME=eckterraform
 az storage account create -n $STORAGE_ACCOUNT_NAME -g $RESOURCE_GROUP_NAME -l westeurope --sku Standard_LRS --encryption-services blob
 # So that is why this storage account is created only once.
 # It could be used for other k8s_test/dev/accp/prd
@@ -35,8 +35,16 @@ ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME
 # We are going to create a new blob container for the testing environment
 # We will have all environments terraform state files in the same
 # blob container, but each environment in a different folder.
-CONTAINER_NAME=pfcterraformstates
-az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
+CONTAINER_TF_STATE_NAME=eck-tf-state
+az storage container create --name $CONTAINER_TF_STATE_NAME --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
 
 echo "storage_account_name created: $STORAGE_ACCOUNT_NAME"
-echo "An storage blob container called $CONTAINER_NAME  was created to store the terraform.tfstate staging file."
+echo "An storage blob container called $CONTAINER_TF_STATE_NAME  was created to store the terraform.tfstate staging file."
+
+# Creating a blob container to store eck snapshots
+# this blob container will receive the backups from 
+CONTAINER_ECK_SNAPSHOTS=eck-snapshots
+az storage container create --name $CONTAINER_ECK_SNAPSHOTS --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
+
+echo "storage_account_name created: $STORAGE_ACCOUNT_NAME"
+echo "An storage blob container called $CONTAINER_ECK_SNAPSHOTS  was created to store the elastic cloud snapshots."
