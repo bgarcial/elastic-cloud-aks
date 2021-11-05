@@ -94,10 +94,10 @@ resource "azurerm_kubernetes_cluster" "aks_main" {
   role_based_access_control {
     enabled = true
     # azure_active_directory {
-      # client_id     = var.client_id
-      # server_app_id     = var.server_app_id
-      # server_app_secret = var.server_app_secret
-      # tenant_id         = var.tenant_id
+    # client_id     = var.client_id
+    # server_app_id     = var.server_app_id
+    # server_app_secret = var.server_app_secret
+    # tenant_id         = var.tenant_id
     # }   
   }
 
