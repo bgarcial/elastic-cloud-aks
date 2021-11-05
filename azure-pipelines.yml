@@ -4,8 +4,14 @@
 # https://aka.ms/yaml
 
 trigger:
-- staging
-
+  branches:
+    include:
+    - staging
+  paths:
+    include:
+    - terraform
+    exclude:
+    - README.md     
 pool:
   vmImage: ubuntu-latest
 
