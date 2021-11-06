@@ -23,7 +23,7 @@ stages:
   - job: Deploy
     displayName: Helm deployment 
     pool:
-    vmImage: ubuntu-latest
+      vmImage: ubuntu-latest
 
     steps:
 
