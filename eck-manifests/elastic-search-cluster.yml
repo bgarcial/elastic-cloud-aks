@@ -1,0 +1,89 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+spec:
+  version: 7.15.1
+  nodeSets:
+  - name: es-picnic
+    count: 3
+    # request 2Gi of persistent data storage for pods in this topology element
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: azurefile
+    config:
+      # most Elasticsearch configuration parameters are possible to set, e.g: node.attr.attr_name: attr_value
+      # node.roles: ["master", "data", "ingest", "ml"]
+      # this allows ES to run on nodes even if their vm.max_map_count has not been increased, at a performance cost
+      node.store.allow_mmap: false
+      node.master: true
+      node.data: true
+      node.ingest: true
+    podTemplate:
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: agentpool
+                  operator: In
+                  values:
+                  - default
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    elasticsearch.k8s.elastic.co/cluster-name: es-picnic
+                topologyKey: kubernetes.io/hostname
+        # this changes the kernel setting on the node to allow ES to use mmap
+        # if you uncomment this init container you will likely also want to remove the
+        # "node.store.allow_mmap: false" setting above
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        ###
+        # uncomment the line below if you are using a service mesh such as linkerd2 that uses service account tokens for pod identification.
+        # automountServiceAccountToken: true
+        containers:
+        - name: elasticsearch
+          # specify resource limits and requests
+          resources:
+            limits:
+              memory: 4Gi
+              cpu: 1
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms2g -Xmx2g"
+    
+     
+  # # inject secure settings into Elasticsearch nodes from k8s secrets references
+  # secureSettings:
+  # - secretName: ref-to-secret
+  # - secretName: another-ref-to-secret
+  #   # expose only a subset of the secret keys (optional)
+  #   entries:
+  #   - key: value1
+  #     path: newkey # project a key to a specific path (optional)
+  http:
+    service:
+      spec:
+        # ports:
+          # - port: 9200
+            # targetPort: 9200
+            # name: http
+        
+        # expose this cluster Service with a LoadBalancer
+        type: LoadBalancer
+  
