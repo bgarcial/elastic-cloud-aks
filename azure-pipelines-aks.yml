@@ -19,67 +19,70 @@ trigger:
 stages:
 - stage: A
   displayName: Getting Ready thirdparty apps
-  pool:
-  vmImage: ubuntu-latest
+  jobs:
+  - job: Deploy
+    displayName: Helm deployment 
+    pool:
+    vmImage: ubuntu-latest
 
-  steps:
+    steps:
 
-  # Helm tool installer
-  # Install Helm on an agent machine
+    # Helm tool installer
+    # Install Helm on an agent machine
 
-  # - task: Kubernetes@1
-  #   displayName: Creating NGINX Namespace
-  #   inputs:
-  #     connectionType: Azure Resource Manager
-  #     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-  #     azureResourceGroup: $(azureResourceGroup)
-  #     kubernetesCluster: 'pcn-eck-stag-aks-gnkmctbv8vcqa'
-  #     command: create
-  #     arguments: ns nginx
+    # - task: Kubernetes@1
+    #   displayName: Creating NGINX Namespace
+    #   inputs:
+    #     connectionType: Azure Resource Manager
+    #     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+    #     azureResourceGroup: $(azureResourceGroup)
+    #     kubernetesCluster: 'pcn-eck-stag-aks-gnkmctbv8vcqa'
+    #     command: create
+    #     arguments: ns nginx
 
-  - task: Kubernetes@1
-    displayName: Creating Cert Manager Namespace
-    inputs:
-      connectionType: Azure Resource Manager
-      azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-      azureResourceGroup: $(azureResourceGroup)
-      kubernetesCluster: $(kubernetesCluster)
-      command: create
-      arguments: ns cert-manager
+    - task: Kubernetes@1
+      displayName: Creating Cert Manager Namespace
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: create
+        arguments: ns cert-manager
 
-  - task: HelmInstaller@1
-    inputs:
-      helmVersionToInstall: $(helmVersion)
+    - task: HelmInstaller@1
+      inputs:
+        helmVersionToInstall: $(helmVersion)
 
-  - script: | 
-      helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-      helm repo add jetstack https://charts.jetstack.io
-      helm repo update
-    displayName: 'Adding Nginx and cert manager repositories'
+    - script: | 
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        helm repo add jetstack https://charts.jetstack.io
+        helm repo update
+      displayName: 'Adding Nginx and cert manager repositories'
 
-  # - task: HelmDeploy@0
-  #   displayName: Deploy Nginx Helm chart
-  #   inputs:
-  #     connectionType: Azure Resource Manager
-  #     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-  #     azureResourceGroup: $(azureResourceGroup)
-  #     kubernetesCluster: $(kubernetesCluster)
-  #     command: install
-  #     chartType: Name
-  #     releaseName: ingress-nginx
-  #     chartName: ingress-nginx/ingress-nginx
-  #     arguments: --set controller.service.type=LoadBalancer --set controller.service.loadBalancerIP=$(loadBalancerIp) --set controller.replicaCount=2 --namespace nginx
+    # - task: HelmDeploy@0
+    #   displayName: Deploy Nginx Helm chart
+    #   inputs:
+    #     connectionType: Azure Resource Manager
+    #     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+    #     azureResourceGroup: $(azureResourceGroup)
+    #     kubernetesCluster: $(kubernetesCluster)
+    #     command: install
+    #     chartType: Name
+    #     releaseName: ingress-nginx
+    #     chartName: ingress-nginx/ingress-nginx
+    #     arguments: --set controller.service.type=LoadBalancer --set controller.service.loadBalancerIP=$(loadBalancerIp) --set controller.replicaCount=2 --namespace nginx
 
-  - task: HelmDeploy@0
-    displayName: Deploy Cert Manager Helm chart
-    inputs:
-      connectionType: Azure Resource Manager
-      azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-      azureResourceGroup: $(azureResourceGroup)
-      kubernetesCluster: $(kubernetesCluster)
-      command: install
-      chartType: Name
-      releaseName: cert-manager
-      chartName: jetstack/cert-manager
-      namespace: c ert-manager
-      arguments: --version v1.6.0
+    - task: HelmDeploy@0
+      displayName: Deploy Cert Manager Helm chart
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: install
+        chartType: Name
+        releaseName: cert-manager
+        chartName: jetstack/cert-manager
+        namespace: cert-manager
+        arguments: --version v1.6.0
