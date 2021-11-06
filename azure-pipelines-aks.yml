@@ -24,32 +24,59 @@ steps:
 # Helm tool installer
 # Install Helm on an agent machine
 
+# - task: Kubernetes@1
+#   displayName: Creating NGINX Namespace
+#   inputs:
+#     connectionType: Azure Resource Manager
+#     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+#     azureResourceGroup: $(azureResourceGroup)
+#     kubernetesCluster: 'pcn-eck-stag-aks-gnkmctbv8vcqa'
+#     command: create
+#     arguments: ns nginx
+
 - task: Kubernetes@1
-  displayName: Creating NGINX Namespace
+  displayName: Creating Cert Manager Namespace
   inputs:
     connectionType: Azure Resource Manager
     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-    azureResourceGroup: 'aks-eck-picnic'
-    kubernetesCluster: 'pcn-eck-stag-aks-gnkmctbv8vcqa'
+    azureResourceGroup: $(azureResourceGroup)
+    kubernetesCluster: $(kubernetesCluster)
     command: create
-    arguments: ns nginx
+    arguments: ns cert-manager
 
 - task: HelmInstaller@1
   inputs:
-    helmVersionToInstall: 'latest'
+    helmVersionToInstall: $(helmVersion)
 
-- script: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-  displayName: 'Adding Nginx repo'
+- script: | 
+    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+    helm repo add jetstack https://charts.jetstack.io
+    helm repo update
+  displayName: 'Adding Nginx and cert manager repositories'
+
+# - task: HelmDeploy@0
+#   displayName: Deploy Nginx Helm chart
+#   inputs:
+#     connectionType: Azure Resource Manager
+#     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+#     azureResourceGroup: $(azureResourceGroup)
+#     kubernetesCluster: $(kubernetesCluster)
+#     command: install
+#     chartType: Name
+#     releaseName: ingress-nginx
+#     chartName: ingress-nginx/ingress-nginx
+#     arguments: --set controller.service.type=LoadBalancer --set controller.service.loadBalancerIP=$(loadBalancerIp) --set controller.replicaCount=2 --namespace nginx
 
 - task: HelmDeploy@0
-  displayName: Deploy Nginx Helm chart
+  displayName: Deploy Cert Manager Helm chart
   inputs:
     connectionType: Azure Resource Manager
     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-    azureResourceGroup: 'aks-eck-picnic'
-    kubernetesCluster: 'pcn-eck-stag-aks-gnkmctbv8vcqa'
+    azureResourceGroup: $(azureResourceGroup)
+    kubernetesCluster: $(kubernetesCluster)
     command: install
     chartType: Name
-    releaseName: ingress-nginx
-    chartName: ingress-nginx/ingress-nginx
-    arguments: --set controller.service.type=LoadBalancer --set controller.service.loadBalancerIP=20.71.18.17 --set controller.replicaCount=2 --namespace nginx
+    releaseName: cert-manager
+    chartName: jetstack/cert-manager
+    namespace: cert-manager
+    arguments: -version v1.6.0
