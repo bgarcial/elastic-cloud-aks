@@ -51,7 +51,7 @@ stages:
         helm repo add jetstack https://charts.jetstack.io
         helm repo add autoscaler https://kubernetes.github.io/autoscaler
         helm repo update
-      displayName: 'Adding Nginx and cert manager repositories'
+      displayName: 'Adding Nginx, Cert manager and autoscaler repositories'
 
     # - task: HelmDeploy@0
     #   displayName: Deploy Nginx Helm chart
@@ -91,18 +91,18 @@ stages:
     #     version: v1.6.0
     #     arguments: 
 
-    - task: HelmDeploy@0
-      displayName: Deploy K8s autoscaler
-      inputs:
-        connectionType: Azure Resource Manager
-        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-        azureResourceGroup: $(azureResourceGroup)
-        kubernetesCluster: $(kubernetesCluster)
-        command: install
-        chartType: Name
-        releaseName: autoscaler
-        chartName: autoscaler/cluster-autoscaler
-        arguments: --set cloudProvider=azure --set autoDiscovery.clusterName=$(kubernetesCluster) --set azureClientID=$(ARM_CLIENT_ID) --set azureClientSecret=$(ARM_CLIENT_SECRET) --set azureSubscriptionID=$(ARM_SUBSCRIPTION_ID) --set azureTenantID=$(ARM_TENANT_ID) --set azureClusterName=$(kubernetesCluster) --set azureResourceGroup=$(azureResourceGroup) --set azureVMType=AKS --set azureNodeResourceGroup=$(azureNodeResourceGroup)
+    # - task: HelmDeploy@0
+    #   displayName: Deploy K8s autoscaler
+    #   inputs:
+    #     connectionType: Azure Resource Manager
+    #     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+    #     azureResourceGroup: $(azureResourceGroup)
+    #     kubernetesCluster: $(kubernetesCluster)
+    #     command: install
+    #     chartType: Name
+    #     releaseName: autoscaler
+    #     chartName: autoscaler/cluster-autoscaler
+    #     arguments: --set cloudProvider=azure --set autoDiscovery.clusterName=$(kubernetesCluster) --set azureClientID=$(ARM_CLIENT_ID) --set azureClientSecret=$(ARM_CLIENT_SECRET) --set azureSubscriptionID=$(ARM_SUBSCRIPTION_ID) --set azureTenantID=$(ARM_TENANT_ID) --set azureClusterName=$(kubernetesCluster) --set azureResourceGroup=$(azureResourceGroup) --set azureVMType=AKS --set azureNodeResourceGroup=$(azureNodeResourceGroup)
 
 - stage: B
   displayName: Deploying Elastic Search Cluster - ECK
