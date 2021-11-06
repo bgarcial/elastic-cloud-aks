@@ -97,3 +97,34 @@ stages:
         namespace: cert-manager
         version: v1.6.0
         arguments: 
+
+- stage: B
+  displayName: Deploying Elastic Search Cluster - ECK
+  jobs:
+  - job: Deploy
+    displayName: Deployment manifests 
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+    - task: Kubernetes@1
+      displayName: Installing Elastic Search CRDs
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: apply
+        workingDirectory: /home/vsts/work/1/s/eck-manifests
+        arguments: -f crds.yml
+    
+    - task: Kubernetes@1
+      displayName: Installing Elastic Search Operator
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: apply
+        workingDirectory: /home/vsts/work/1/s/eck-manifests
+        arguments: -f operator.yml
