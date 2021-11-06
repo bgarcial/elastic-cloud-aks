@@ -79,4 +79,4 @@ steps:
     releaseName: cert-manager
     chartName: jetstack/cert-manager
     namespace: cert-manager
-    arguments: -version v1.6.0
+    arguments: --version v1.6.0
