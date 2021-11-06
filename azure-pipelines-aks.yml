@@ -34,15 +34,15 @@ steps:
 #     command: create
 #     arguments: ns nginx
 
-- task: Kubernetes@1
-  displayName: Creating Cert Manager Namespace
-  inputs:
-    connectionType: Azure Resource Manager
-    azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-    azureResourceGroup: $(azureResourceGroup)
-    kubernetesCluster: $(kubernetesCluster)
-    command: create
-    arguments: ns cert-manager
+# - task: Kubernetes@1
+#   displayName: Creating Cert Manager Namespace
+#   inputs:
+#     connectionType: Azure Resource Manager
+#     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+#     azureResourceGroup: $(azureResourceGroup)
+#     kubernetesCluster: $(kubernetesCluster)
+#     command: create
+#     arguments: ns cert-manager
 
 - task: HelmInstaller@1
   inputs:
