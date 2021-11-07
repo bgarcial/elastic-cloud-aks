@@ -159,3 +159,14 @@ stages:
         command: apply
         workingDirectory: /home/vsts/work/1/s/eck-manifests
         arguments: -f elastic-search-cluster.yml
+    
+    - task: Kubernetes@1
+      displayName: Creating Elastic Search Snapshots
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: apply
+        workingDirectory: /home/vsts/work/1/s/eck-manifests
+        arguments: -f es-snapshotter.yaml

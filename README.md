@@ -293,9 +293,10 @@ communicate with an azure blob storage container previously created:
 secret/azure-sa-credentials created
 ```
 
-- Then an `initContainer` was added to the `elastic-search-cluster.yaml` file called `azure-sa-credentials`.
-That it does is to install the `repository-azure` plugin, [define the above variables as storage settings](https://www.elastic.co/guide/en/elasticsearch/plugins/master/repository-azure-usage.html#repository-azure-usage) 
-and consuming the secret created previously. This is how it looks like
+- Then a couple of actions were added as `initContainer` to the `elastic-search-cluster.yaml` file called `install-plugins` and `add-sa-credentials`.
+
+That they do is to install the `repository-azure` plugin, [define the above variables as storage settings](https://www.elastic.co/guide/en/elasticsearch/plugins/master/repository-azure-usage.html#repository-azure-usage) 
+and consuming the secret created previously. This is [how it looks like](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L48-L71)
 
 - In addition a snapshot repository should be registered in the blob container. It is really just a storage location where the
 backups will be stored:
