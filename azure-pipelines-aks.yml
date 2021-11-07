@@ -146,6 +146,7 @@ stages:
         secretType: generic
         secretArguments: --from-literal=sa-client-id=$(STORAGE_ACCOUNT_NAME) --from-literal=sa-access-key=$(SA_ACCESS_KEY)
         secretName: azure-sa-credentials
+        
     - task: Kubernetes@1
       displayName: Installing Elastic Search Cluster
       inputs:
