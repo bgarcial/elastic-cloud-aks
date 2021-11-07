@@ -144,6 +144,7 @@ stages:
         kubernetesCluster: $(kubernetesCluster)
         kubernetesServiceEndpoint: 'aks-connection'
         command: apply
+        arguments: -f
         secretType: generic
         secretArguments: --from-literal=sa-client-id=$(STORAGE_ACCOUNT_NAME) --from-literal=sa-access-key=$(SA_ACCESS_KEY)
         secretName: azure-sa-credentials
