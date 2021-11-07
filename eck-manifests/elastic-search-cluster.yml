@@ -6,8 +6,8 @@ spec:
   version: 7.15.1
   nodeSets:
   - name: es-picnic
-    count: 3
-    # request 2Gi of persistent data storage for pods in this topology element
+    count: 4
+    # request 10Gi of persistent data storage for pods in this topology element
     volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
