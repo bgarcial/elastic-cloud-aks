@@ -45,9 +45,30 @@ spec:
           securityContext:
             privileged: true
           command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
-        ###
-        # uncomment the line below if you are using a service mesh such as linkerd2 that uses service account tokens for pod identification.
-        # automountServiceAccountToken: true
+        - name: install-plugins
+          command:
+          - sh
+          - -c
+          - |
+            bin/elasticsearch-plugin install --batch repository-azure
+        - name: add-sp-credentials 
+          env:
+          - name: ARM_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: azure-sp-credentials
+                key: arm-client-id
+          - name: ARM_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: azure-sp-credentials
+                key: arm-client-secret
+          command:
+          - sh
+          - -c
+          - |
+            echo $ARM_CLIENT_ID | bin/elasticsearch-keystore add azure.client.default.account
+            echo $ARM_CLIENT_SECRET | bin/elasticsearch-keystore add azure.client.default.key
         containers:
         - name: elasticsearch
           # specify resource limits and requests
