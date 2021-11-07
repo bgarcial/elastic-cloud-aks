@@ -355,12 +355,67 @@ backups will be stored:
 
 ![](https://cldup.com/49vLBeF8za.png)
 
+### 4.1. Creating periodic snapshots with a `CronJob` K8s resource
+
+To automate the creation of backups a [`CronJob`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-snapshotter.yaml) tab was created
+It makes an HTTP request against the appropriate endpoint `service/elasticsearch-es-http` by consuming the elastic user secret.
 
 
 ## Software needed
 
-## Deploying the stack
+- Azure account subscription
+- AZ cli tool configured with the azure account
+- Kubectl
+- Helm 
+- Terraform
+- Curl
+
+---
 
 ## Variabes needed
+
+- Is necessary to create a service principal on azure cloud. Its credentials and information will be used to connect
+to azure cloud from the pipeline in Azure DevOps. It is created in this way:
+
+```
+az ad sp create-for-rbac -n "eck-picnic" --role contributor
+
+Creating 'contributor' role assignment under scope '/subscriptions/9148bd11-f32b-4b5d-a6c0-5ac5317f29ca'
+The output includes credentials that you must protect. Be sure that you do not include these credentials in your code or check the credentials into your source control. For more information, see https://aka.ms/azadsp-cli
+'name' property in the output is deprecated and will be removed in the future. Use 'appId' instead.
+{
+  "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "displayName": "eck-picnic",
+  "name": "77505f0a-698a-48d9-9a73-62e198392b09",
+  "password": "*********************************",
+  "tenant": "4e6b0716-50ea-4664-90a8-998f60996c44"
+}
+```
+- The `appId` value was taken to put it to the `ARM_CLIENT_ID` variable created and used in the pipeline
+- The `password` value was taken to put it to the `ARM_CLIENT_SECRET` variable created and used in the pipeline
+- The `tenant` value was taken to put it to the `ARM_TENANT_ID` variable created and used in the pipeline
+- In addition the subscriptionId was taken from azure portal to create the `ARM_SUBSCRIPTION_ID` variable created and used in the pipeline
+
+The above variables were used in the [terraform infrastructure pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=160&view=results) 
+and in the [aks deployment pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build?definitionId=9)
+
+In addition the following variable environments were created to be used in the aks deployment pipeline
+
+- `azureNodeResourceGroup` which is the internal large resource group name that is created when an aks cluster is created.
+- `azureResourceGroup`, to point to the resource group where the aks cluster is
+- `helmVersion` to download the v3.7.1 helm tool
+- `kubernetesCluster` to pass the name of the aks cluster
+- `loadBalancerIp` to pass the public ip address of the load balancer to configure nginx ingress controller.
+- `SA_ACCESS_KEY` to pass the access key of the eck-terraform storage account which is used to store es snapshots
+- `STORAGE_ACCOUNT_NAME`, for the name of the storage account (eck-terraform)
+
+---
+
+
+## Deploying the stack
+
+Being this solution driven by the infra and aks deployments pipeline mentioned previously, every change on the respective files will trigger those pipelines
+and either the terraform workflow and the elasticsearch manifest files will be applied.
+
 
 ## Upgrading the solution
