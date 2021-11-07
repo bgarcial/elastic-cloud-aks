@@ -126,10 +126,10 @@ The helm chart for the autoscaler component is deployed from [a new pipeline cre
 [`elastic-cloud-aks/azure-pipelines-aks.yml`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines-aks.yml)
  it is also in charge of deploy
 third party applications like nginx ingress controller, cert-manager, and for sure the elasticsearch crds, operator and es-cluster. It means
-any changes over the `[elastic-cloud-aks/eck-manifests](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/eck-manifests)` directory or from
+any changes over the [`elastic-cloud-aks/eck-manifests`](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/eck-manifests) directory or from
 the `elastic-cloud-aks/azure-pipelines-aks.yml` itself, will trigger that pipeline.
 
-Then having deployed as a part of the solution the Kubernetes autoscaler component, I am making sure, the AKS cluster can scale in the case
+Then having deployed as a part of the solution the Kubernetes autoscaler component, I am making sure with this, the AKS cluster can scale in the case
 additional elasticsearch nodes need to be added.
 
 - For example, let's modify the `nodeSets.count` parameter [from 3 to 4](https://github.com/bgarcial/elastic-cloud-aks/commit/231c28bef8a9418eaecd30ef664cd28ca225812c):
@@ -214,11 +214,14 @@ So if you go to https://52.236.145.137:9200 you will get it as long overcome the
 
 ![](https://cldup.com/MqYdAmITYV.png)
 
+---
 
 ### 2.2. Storage class selected to elasticsearch PVs creation
 
 The elasticsearch cluster, by applying [`volumeClaimTemplates`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L11-L20)
 configuration, it is creating a `pvc` resource for every elasticsearch pod created at every node:
+
+
 
 ![](https://cldup.com/aGHNF9G7rp.png)
 
@@ -246,7 +249,7 @@ I am using [azurefile](https://github.com/bgarcial/elastic-cloud-aks/blob/stagin
 
 ---
 
-**IMPORTANT:**
+#### **IMPORTANT:**
 
 Since the PVs that are backing up the es-cluster inside the K8s cluster are  dynamically provisioned PersistentVolumes, 
 the default reclaim policy is "Delete". This means that a dynamically provisioned volume is automatically deleted when a user 
@@ -259,8 +262,6 @@ That policy [can be changed](https://kubernetes.io/docs/tasks/administer-cluster
 >This automatic behavior might be inappropriate if the volume contains precious data. In that case, it is more appropriate to use the "Retain" policy. With the "Retain" policy, if a user deletes a PersistentVolumeClaim, the corresponding PersistentVolume will not be deleted. Instead, it is moved to the Released phase, where all of its data can be manually recovered.
 
 
-
-
 ---
 
 
@@ -271,6 +272,88 @@ That policy [can be changed](https://kubernetes.io/docs/tasks/administer-cluster
 All instance/elastic-search node have the same roles ([master, data, ingest](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L26-L28))
 
 ## 4. Elasticsearch recovering data 
+
+An storage account blob container is created from the pipeline to be used to store elasticsearch snapshots.
+
+If the reclaim policy on PVCs is `Delete`, [as long a elasticsearch node is down, the PVC in it will be deleted](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-volume-claim-templates.html#k8s_controlling_volume_claim_deletion)
+ended up this in the PV deletion. So is good to change the policy.
+
+But thinking outside the cluster, is not good backups depend of this kind of operations, so is opportune to think about how
+to create and store elasticsearch snapshots somewhere outside the cluster.  
+[I will use the azure repository plugin in elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/7.15/repository-azure.html#repository-azure) to
+communicate with an azure blob storage container previously created:
+
+
+- Create a secret: This K8s secret needs to be created, it has the name of the storage account and the access key.
+    - The `STORAGE_ACCOUNT_NAME` variable is the name of the storage account, it is eck-terraform
+    - The `SA_ACCESS_KEY` variable is the access key of the storage account.
+
+```
+ k create secret generic azure-sa-credentials --from-literal=sa-client-id=$(STORAGE_ACCOUNT_NAME) --from-literal=sa-access-key=$(SA_ACCESS_KEY)
+secret/azure-sa-credentials created
+```
+
+- Then an `initContainer` was added to the `elastic-search-cluster.yaml` file called `azure-sa-credentials`.
+That it does is to install the `repository-azure` plugin, [define the above variables as storage settings](https://www.elastic.co/guide/en/elasticsearch/plugins/master/repository-azure-usage.html#repository-azure-usage) 
+and consuming the secret created previously. This is how it looks like
+
+- In addition a snapshot repository should be registered in the blob container. It is really just a storage location where the
+backups will be stored:
+
+```
+> curl -k -u "elastic:$PASSWORD" -X PUT "https://localhost:9200/_snapshot/eck-snapshots?pretty" -H 'Content-Type: application/json' -d'
+{
+  "type": "azure",
+  "settings": {
+    "container": "eck-snapshots",
+    "base_path": "/",
+    "compress": true
+  }
+}
+'
+{
+  "acknowledged" : true
+}
+```
+
+- After this, we can create our first snapshot from the cluster:
+
+```
+> curl -k -u "elastic:$PASSWORD" -X PUT "https://localhost:9200/_snapshot/eck-snapshots/snapshots_1?wait_for_completion=true"
+{
+	"snapshot": {
+		"snapshot": "snapshots_1",
+		"uuid": "SqxJMfVBR9yoVeFVv0-gLQ",
+		"repository": "eck-snapshots",
+		"version_id": 7150199,
+		"version": "7.15.1",
+		"indices": [".geoip_databases"],
+		"data_streams": [],
+		"include_global_state": true,
+		"state": "SUCCESS",
+		"start_time": "2021-11-07T21:45:20.120Z",
+		"start_time_in_millis": 1636321520120,
+		"end_time": "2021-11-07T21:45:24.723Z",
+		"end_time_in_millis": 1636321524723,
+		"duration_in_millis": 4603,
+		"failures": [],
+		"shards": {
+			"total": 1,
+			"failed": 0,
+			"successful": 1
+		},
+		"feature_states": [{
+			"feature_name": "geoip",
+			"indices": [".geoip_databases"]
+		}]
+	}
+}
+```
+
+- If we check the blob container, the snapshot files are there:
+
+![](https://cldup.com/49vLBeF8za.png)
+
 
 
 ## Software needed

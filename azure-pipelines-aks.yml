@@ -136,18 +136,18 @@ stages:
         workingDirectory: /home/vsts/work/1/s/eck-manifests
         arguments: -f operator.yml
     
-    - task: Kubernetes@1
-      displayName: kubectl create for secretType generic
-      inputs:
-        azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
-        azureResourceGroup: $(azureResourceGroup)
-        kubernetesCluster: $(kubernetesCluster)
-        kubernetesServiceEndpoint: 'aks-connection'
-        command: apply
-        arguments: -f
-        secretType: generic
-        secretArguments: --from-literal=sa-client-id=$(STORAGE_ACCOUNT_NAME) --from-literal=sa-access-key=$(SA_ACCESS_KEY)
-        secretName: azure-sa-credentials
+    # - task: Kubernetes@1
+    #   displayName: kubectl create for secretType generic
+    #   inputs:
+    #     azureSubscriptionEndpoint: 'Azure-Personal-Subscription'
+    #     azureResourceGroup: $(azureResourceGroup)
+    #     kubernetesCluster: $(kubernetesCluster)
+    #     kubernetesServiceEndpoint: 'aks-connection'
+    #     command: apply
+    #     # arguments: -f
+    #     secretType: generic
+    #     secretArguments: --from-literal=sa-client-id=$(STORAGE_ACCOUNT_NAME) --from-literal=sa-access-key=$(SA_ACCESS_KEY)
+    #     secretName: azure-sa-credentials
         
     - task: Kubernetes@1
       displayName: Installing Elastic Search Cluster
