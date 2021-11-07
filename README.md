@@ -74,7 +74,7 @@ or in Amazon EKS where when a EKS is created, [a VPC managed by AWS is created f
 directory are located all files belong to the terraform workflow.
 
 - There is [a pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=160&view=results)
-  that is used to maanage changes on the terraform workflow. It is supported by the 
+  that is used to manage changes on the terraform workflow. It is supported by the 
   [elastic-cloud-aks/azure-pipelines.yml](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines.yml)
   file. Every time a change takes place over that file or over terraform files under `elastic-cloud-aks/terraform` directory
   this pipeline will be triggered. Basically it manages the `terraform | init | validate | format. | plan | apply`
@@ -116,7 +116,7 @@ Since nodes is an essential factor for autoscaling, let me elaborate a bit about
 - The nodegroup that is gathering the nodes [has autoscaling configured](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/terraform/main.tf#L75-L77)
 so the nodes are able to progressively support things like Horizontal pod autoscaling for increasing/decreasing number of replicas. This at pod level.
 
-**But how the nodes are autoscaled?**
+### But how the nodes are autoscaled?
 
 - Having a kind of autoscaling group supporting them, I installed on the cluster the **[cluster-autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/azure/README.md)** 
 component which one automatically will adjust the size of the cluster (the nodes) in order alll pods can have a place to run and there are no unneeded nodes.
@@ -415,7 +415,7 @@ In addition the following variable environments were created to be used in the a
 ## Deploying the stack
 
 Being this solution driven by the infra and aks deployments pipeline mentioned previously, every change on the respective files will trigger those pipelines
-and either the terraform workflow and the elasticsearch manifest files will be applied.
+and either the terraform workflow and the elasticsearch manifest files will be applied. For more details refer to [1.4 Description of the files](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/README.md#14-description-of-directoryfiles) section
 
 
 ## Upgrading the solution
