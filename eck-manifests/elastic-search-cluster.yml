@@ -51,24 +51,24 @@ spec:
           - -c
           - |
             bin/elasticsearch-plugin install --batch repository-azure
-        - name: add-sp-credentials 
+        - name: add-sa-credentials 
           env:
           - name: ARM_CLIENT_ID
             valueFrom:
               secretKeyRef:
-                name: azure-sp-credentials
-                key: arm-client-id
+                name: azure-sa-credentials
+                key: sa-client-id
           - name: ARM_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
-                name: azure-sp-credentials
-                key: arm-client-secret
+                name: azure-sa-credentials
+                key: sa-access-key
           command:
           - sh
           - -c
           - |
-            echo $ARM_CLIENT_ID | bin/elasticsearch-keystore add --stdin --force azure.client.default.account
-            echo $ARM_CLIENT_SECRET | bin/elasticsearch-keystore add --stdin --force azure.client.default.key
+            echo $ARM_CLIENT_ID | bin/elasticsearch-keystore add azure.client.default.account
+            echo $ARM_CLIENT_SECRET | bin/elasticsearch-keystore add azure.client.default.key
         containers:
         - name: elasticsearch
           # specify resource limits and requests
