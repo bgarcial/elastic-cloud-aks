@@ -360,6 +360,20 @@ backups will be stored:
 To automate the creation of backups a [`CronJob`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-snapshotter.yaml) tab was created
 It makes an HTTP request against the appropriate endpoint `service/elasticsearch-es-http` by consuming the elastic user secret.
 
+---
+
+## 5. Metrics to keep in mind
+
+If we want to monitor elastic eck cluster, [the documentation](https://www.elastic.co/guide/en/kibana/current/elasticsearch-metrics.html) presents how to check metrics for:
+
+- elastic nodes
+- indexes
+- Jobs
+in order to get a good overview of health of the es-cluster
+
+Under this idea, the elasticsearch exporter could be added to export this metrics so they can be fetched for
+prometheus for example. This [helm chart](https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-elasticsearch-exporter/README.md#install-chart) is a good thing to include in the solution
+
 
 ## Software needed
 
@@ -415,7 +429,16 @@ In addition the following variable environments were created to be used in the a
 ## Deploying the stack
 
 Being this solution driven by the infra and aks deployments pipeline mentioned previously, every change on the respective files will trigger those pipelines
-and either the terraform workflow and the elasticsearch manifest files will be applied. For more details refer to [1.4 Description of the files](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/README.md#14-description-of-directoryfiles) section
+and either the terraform workflow and the elasticsearch manifest files will be applied. 
+
+For more details about the pipelines please refer to:
+- [1.4 Description of the files](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/README.md#14-description-of-directoryfiles) section
+for infrastructure provisioning pipeline
+- [2. Deploying ES-cluster and scaling nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/README.md#but-how-the-nodes-are-autoscaled) section
+for aks deployment pipeline.
 
 
 ## Upgrading the solution
+Elasticsearch can usually be upgraded using a Rolling upgrade process so upgrading does not interrupt service. Rolling upgrades are supported:
+
+[Here](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-upgrading-eck.html#k8s-ga-upgrade), detailed info about how to upgrade the CRDs, the operator and the elastic stack 
