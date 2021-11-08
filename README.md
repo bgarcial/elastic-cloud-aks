@@ -15,7 +15,8 @@ The following technologies were used:
 ### 1.1. Using [Elastic Cloud on Kubernetes (ECK)](https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html) solution
 
 Since one of the requirements is use Docker/Kubernetes, I decided to
-use it, which one comes with the CRDs needed and the elastic operator and the elastic cluster itself.
+use Elastic cloud on Kubernetes solution, which one comes with the CRDs 
+needed and the elastic operator and the elastic cluster itself.
 
 The use of an operator will help us to have the little manual tasks as much
 we can, since it is in charge of deploy in the correct order 
@@ -76,8 +77,10 @@ directory are located all files belong to the terraform workflow.
 - There is [a pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=160&view=results)
   that is used to manage changes on the terraform workflow. It is supported by the 
   [elastic-cloud-aks/azure-pipelines.yml](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines.yml)
-  file. Every time a change takes place over that file or over terraform files under `elastic-cloud-aks/terraform` directory
-  this pipeline will be triggered. Basically it manages the `terraform | init | validate | format. | plan | apply`
+  file. 
+  
+  Every time a change takes place over that file or over terraform files under `elastic-cloud-aks/terraform` directory
+  this pipeline will be triggered. Basically it manages the `terraform | init | validate | format | plan | apply`
   workflow with the infrastructure in azure. 
 
 - The terraform state is being managed from the pipeline as well, [by contacting a blob container created in azure](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines.yml#L46-L52).
@@ -87,7 +90,7 @@ That container is created previously before to initiate the terraform workflow, 
 which will be used to store elasticsearch snapshots when 
 a backups of the es-cluster takes place.
 
-So the management of the infrastructure provisioning is via the pipeline mentioned, and where a terraform plan is applied, 
+So the management of the infrastructure provisioning is done via the pipeline mentioned, and where a terraform plan is applied, 
 [it is how it looks like](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=159&view=logs&j=12f1170f-54f2-53f3-20dd-22fc7dff55f9&t=a15be6fc-5bda-52fa-0c03-7adf6e1a4d77).
 
 ---
@@ -102,16 +105,16 @@ As long the cluster is provisioned, we can see the three nodes share many labels
 
 - In the same way I decided to deploy an elasticsearch cluster with [three nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L8-L9) 
 
-I decided to implement the behavior that the elastic search cluster pods can only be placed on a node with a label whose key is `agentpool` 
+- I decided to implement the behavior that the elastic search cluster pods can only be placed on a node with a label whose key is `agentpool` 
 and whose value is `default` (since it is [the name of the nodepool](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/terraform/main.tf#L70-L71)).
 
-The `requiredDuringSchedulingIgnoredDuringExecution` type of affinity will allow me to enforce this rule always, it means if in runtime
-the value of the label `agentpool` change, ant this rule is no longer met, the pods keeps running on that node.  
+- The `requiredDuringSchedulingIgnoredDuringExecution` type of affinity will allow me to enforce this rule always, it means if in runtime
+the value of the label `agentpool` change, and this rule is no longer met, the pods keeps running on that node.  
 
-So in this way, by applying the [`nodeAffinity`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L32-L39) 
+- So in this way, by applying the [`nodeAffinity`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L32-L39) 
 is configured the guarantee that pods are going to be deployed only to `default` nodes, which ones are all the three worker nodes.
 
-Since nodes is an essential factor for autoscaling, let me elaborate a bit about scaling capabilities on the cluster here:
+Since nodes are an essential factor for autoscaling, let me elaborate a bit about scaling capabilities on the cluster here:
 
 - The nodegroup that is gathering the nodes [has autoscaling configured](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/terraform/main.tf#L75-L77)
 so the nodes are able to progressively support things like Horizontal pod autoscaling for increasing/decreasing number of replicas. This at pod level.
@@ -125,8 +128,9 @@ The helm chart for the autoscaler component is deployed from [a new pipeline cre
 - You can find this pipeline [here](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build?definitionId=9), it is supported by the
 [`elastic-cloud-aks/azure-pipelines-aks.yml`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines-aks.yml)
  it is also in charge of deploy
-third party applications like nginx ingress controller, cert-manager, and for sure the elasticsearch crds, operator and es-cluster. It means
-any changes over the [`elastic-cloud-aks/eck-manifests`](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/eck-manifests) directory or from
+third party applications like `nginx ingress controller`, `cert-manager`, and for sure the `elasticsearch crds`, `operator` and `es-cluster`. 
+
+It means any changes over the [`elastic-cloud-aks/eck-manifests`](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/eck-manifests) directory or from
 the `elastic-cloud-aks/azure-pipelines-aks.yml` itself, will trigger that pipeline.
 
 Then having deployed as a part of the solution the Kubernetes autoscaler component, I am making sure with this, the AKS cluster can scale in the case
@@ -134,7 +138,7 @@ additional elasticsearch nodes need to be added.
 
 - For example, let's modify the `nodeSets.count` parameter [from 3 to 4](https://github.com/bgarcial/elastic-cloud-aks/commit/231c28bef8a9418eaecd30ef664cd28ca225812c):
 
-We will see a new node will be added to the cluster when the pipeline [is being executed](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=177&view=results):
+We will see a new node will be added to the cluster when the pipeline [is being executed](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=177&view=logs&j=79c55128-1e81-5faf-651b-c5327d72d52f&t=845e70b3-90f5-57a6-4b24-e3325e94780e&l=192):
 
 ![](https://cldup.com/5BJDVj3Qcj.png)
 
@@ -273,14 +277,15 @@ All instance/elastic-search node have the same roles ([master, data, ingest](htt
 
 ## 4. Elasticsearch recovering data 
 
-An storage account blob container is created from the pipeline to be used to store elasticsearch snapshots.
+- An storage account blob container is created from the pipeline to be used to store elasticsearch snapshots.
 
-If the reclaim policy on PVCs is `Delete`, [as long a elasticsearch node is down, the PVC in it will be deleted](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-volume-claim-templates.html#k8s_controlling_volume_claim_deletion)
+- If the reclaim policy on PVCs is `Delete`, [as long a elasticsearch node is down, the PVC in it will be deleted](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-volume-claim-templates.html#k8s_controlling_volume_claim_deletion)
 ended up this in the PV deletion. So is good to change the policy.
 
 But thinking outside the cluster, is not good backups depend of this kind of operations, so is opportune to think about how
 to create and store elasticsearch snapshots somewhere outside the cluster.  
-[I will use the azure repository plugin in elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/7.15/repository-azure.html#repository-azure) to
+
+- [I will use the azure repository plugin in elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/7.15/repository-azure.html#repository-azure) to
 communicate with an azure blob storage container previously created:
 
 
@@ -354,6 +359,8 @@ backups will be stored:
 - If we check the blob container, the snapshot files are there:
 
 ![](https://cldup.com/49vLBeF8za.png)
+
+---
 
 ### 4.1. Creating periodic snapshots with a `CronJob` K8s resource
 
