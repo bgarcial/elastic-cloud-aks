@@ -1,25 +1,25 @@
-# Elastic cloud deployment on AKS - A HA approach.
+# Elastic cloud deployment on AKS - A HA approach
 
 This README descrption will be driven by the objectives needed to pursue in the solution, giving to the
 reader along the way an explanation of the solution while highlighting important details to operate it and
 modify it.
 
-## 1. Deploying a  highly available Elasticsearch (ES) cluster.
+## 1. Deploying a  highly available Elasticsearch (ES) cluster
 
 The following technologies were used:
+
 - Terraform to provision and manage infrastructure as code.
 - AKS Cluster (Azure Kubernetes Service) as a container orchestration service to deploy the elastic search cluster
 - Elastic Cloud on Kubernetes operator to Elasticsearch management.
 
-
 ### 1.1. Using [Elastic Cloud on Kubernetes (ECK)](https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html) solution
 
 Since one of the requirements is use Docker/Kubernetes, I decided to
-use Elastic cloud on Kubernetes solution, which one comes with the CRDs 
+use Elastic cloud on Kubernetes solution, which one comes with the CRDs
 needed and the elastic operator and the elastic cluster itself.
 
 The use of an operator will help us to have the little manual tasks as much
-we can, since it is in charge of deploy in the correct order 
+we can, since it is in charge of deploy in the correct order
 resources like service accounts (so it will take care about roles)
 roles and clusterroles, besides services that work alongside elasticsearch
 service (like webhooks), configmaps secrets and so on.
@@ -37,7 +37,7 @@ You can find more about the operator [here](https://operatorhub.io/operator/elas
 
 ---
 
-### 1.2. Kubernetes Cluster Requirements.
+### 1.2. Kubernetes Cluster Requirements
 
 I decided to use an AKS cluster to support the ES-cluster, which was deployed
 with the following features/properties:
@@ -53,7 +53,7 @@ on autoscaling concerns.
 
 ---
 
-### 1.3. Provisioning the above infrastructure 
+### 1.3. Provisioning the above infrastructure
 
 I used terraform for AKS cluster provisioning, being responsible for creating the
 Vnet (and subnet where the cluster is placed), the AKS cluster worker nodes along the master node
@@ -62,8 +62,8 @@ or control plane which is created implicitly by Azure when provisioning the clus
 ---
 **NOTE:**
 
-I am using Azure Kubernetes service, there the architecture for deployment 
-is pretty similar to Amazon EKS in the sense that control plane is managed by the 
+I am using Azure Kubernetes service, there the architecture for deployment
+is pretty similar to Amazon EKS in the sense that control plane is managed by the
 provider, either in Azure where [it is totally abstracted from the user perspective](https://docs.microsoft.com/en-us/azure/aks/concepts-clusters-workloads#control-plane),
 or in Amazon EKS where when a EKS is created, [a VPC managed by AWS is created for managing the control plane](https://aws.amazon.com/blogs/containers/de-mystifying-cluster-networking-for-amazon-eks-worker-nodes/).
 
@@ -71,26 +71,26 @@ or in Amazon EKS where when a EKS is created, [a VPC managed by AWS is created f
 
 ### 1.4. Description of directory/files
 
-- Under [`elastic-cloud-aks/terraform`](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/terraform) 
+- Under [`elastic-cloud-aks/terraform`](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/terraform)
 directory are located all files belong to the terraform workflow.
 
 - There is [a pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=160&view=results)
-  that is used to manage changes on the terraform workflow. It is supported by the 
+  that is used to manage changes on the terraform workflow. It is supported by the
   [elastic-cloud-aks/azure-pipelines.yml](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines.yml)
-  file. 
+  file.
   
   Every time a change takes place over that file or over terraform files under `elastic-cloud-aks/terraform` directory
   this pipeline will be triggered. Basically it manages the `terraform | init | validate | format | plan | apply`
-  workflow with the infrastructure in azure. 
+  workflow with the infrastructure in azure.
 
 - The terraform state is being managed from the pipeline as well, [by contacting a blob container created in azure](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines.yml#L46-L52).
 That container is created previously before to initiate the terraform workflow, through the  [`elastic-cloud-aks/scripts/create-sa-blob-container.sh`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/scripts/create-sa-blob-container.sh)bash file
 
-- This bash file also creates [the blob container](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/scripts/create-sa-blob-container.sh#L46-L50) 
-which will be used to store elasticsearch snapshots when 
+- This bash file also creates [the blob container](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/scripts/create-sa-blob-container.sh#L46-L50)
+which will be used to store elasticsearch snapshots when
 a backups of the es-cluster takes place.
 
-So the management of the infrastructure provisioning is done via the pipeline mentioned, and where a terraform plan is applied, 
+So the management of the infrastructure provisioning is done via the pipeline mentioned, and where a terraform plan is applied,
 [it is how it looks like](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=159&view=logs&j=12f1170f-54f2-53f3-20dd-22fc7dff55f9&t=a15be6fc-5bda-52fa-0c03-7adf6e1a4d77).
 
 ---
@@ -103,15 +103,15 @@ As long the cluster is provisioned, we can see the three nodes share many labels
 
 ![](https://cldup.com/yIzMQnuMOt.png)
 
-- In the same way I decided to deploy an elasticsearch cluster with [three nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L8-L9) 
+- In the same way I decided to deploy an elasticsearch cluster with [three nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L8-L9)
 
-- I decided to implement the behavior that the elastic search cluster pods can only be placed on a node with a label whose key is `agentpool` 
+- I decided to implement the behavior that the elastic search cluster pods can only be placed on a node with a label whose key is `agentpool`
 and whose value is `default` (since it is [the name of the nodepool](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/terraform/main.tf#L70-L71)).
 
 - The `requiredDuringSchedulingIgnoredDuringExecution` type of affinity will allow me to enforce this rule always, it means if in runtime
 the value of the label `agentpool` change, and this rule is no longer met, the pods keeps running on that node.  
 
-- So in this way, by applying the [`nodeAffinity`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L32-L39) 
+- So in this way, by applying the [`nodeAffinity`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L32-L39)
 is configured the guarantee that pods are going to be deployed only to `default` nodes, which ones are all the three worker nodes.
 
 Since nodes are an essential factor for autoscaling, let me elaborate a bit about scaling capabilities on the cluster here:
@@ -121,14 +121,14 @@ so the nodes are able to progressively support things like Horizontal pod autosc
 
 ### But how the nodes are autoscaled?
 
-- Having a kind of autoscaling group supporting them, I installed on the cluster the **[cluster-autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/azure/README.md)** 
+- Having a kind of autoscaling group supporting them, I installed on the cluster the **[cluster-autoscaler](https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/azure/README.md)**
 component which one automatically will adjust the size of the cluster (the nodes) in order alll pods can have a place to run and there are no unneeded nodes.
 The helm chart for the autoscaler component is deployed from [a new pipeline created](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines-aks.yml#L94-L105) to execute all kubernetes deployments
 
 - You can find this pipeline [here](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build?definitionId=9), it is supported by the
 [`elastic-cloud-aks/azure-pipelines-aks.yml`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/azure-pipelines-aks.yml)
  it is also in charge of deploy
-third party applications like `nginx ingress controller`, `cert-manager`, and for sure the `elasticsearch crds`, `operator` and `es-cluster`. 
+third party applications like `nginx ingress controller`, `cert-manager`, and for sure the `elasticsearch crds`, `operator` and `es-cluster`.
 
 It means any changes over the [`elastic-cloud-aks/eck-manifests`](https://github.com/bgarcial/elastic-cloud-aks/tree/staging/eck-manifests) directory or from
 the `elastic-cloud-aks/azure-pipelines-aks.yml` itself, will trigger that pipeline.
@@ -161,7 +161,7 @@ elasticsearch   green    4       7.15.1    Ready   18h
 + kubectl get secret elasticsearch-es-elastic-user -o go-template={{.data.elastic | base64decode}}
 ```
 
-- Making port forwarding of the service: 
+- Making port forwarding of the service:
 
 ```
 kpf service/elasticsearch-es-http 9200:9200 &
@@ -172,6 +172,7 @@ kpf service/elasticsearch-es-http 9200:9200 &
 > Forwarding from 127.0.0.1:9200 -> 9200
 Forwarding from [::1]:9200 -> 9200
 ```
+
 - Authenticating to the cluster:
 
 ```
@@ -209,14 +210,14 @@ Forwarding from [::1]:9200 -> 9200
 Since I deployed elasticsearch cluster as LoadBalancer type service, you can access directly to it from outside:
 
 ```
-> curl -u "elastic:$PASSWORD" -k "https://52.236.145.137:9200/_cat/health"
+> curl -u "elastic:$PASSWORD" -k "https://20.54.147.163:9200/_cat/health"
 
 1636303800 16:50:00 elasticsearch green 4 4 2 1 0 0 0 0 - 100.0%
 ```
 
-So if you go to https://52.236.145.137:9200 you will get it as long overcome the basic-auth process.
+So if you go to <https://20.54.147.163:9200> you will get it as long overcome the basic-auth process.
 
-![](https://cldup.com/MqYdAmITYV.png)
+![](https://cldup.com/l7Ir8hF5ir.png)
 
 ---
 
@@ -225,16 +226,14 @@ So if you go to https://52.236.145.137:9200 you will get it as long overcome the
 The elasticsearch cluster, by applying [`volumeClaimTemplates`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L11-L20)
 configuration, it is creating a `pvc` resource for every elasticsearch pod created at every node:
 
-
-
 ![](https://cldup.com/aGHNF9G7rp.png)
 
-It means persistent volumes will be created dynamically at runtime, and when doing this, 
-the process will look for an storageclass to be selected in order to create them. 
+It means persistent volumes will be created dynamically at runtime, and when doing this,
+the process will look for an storageclass to be selected in order to create them.
 Normally every K8s cloud provider come with a pre-built storageclass that allows flexibility in terms of
-storage to the PVs that will use it. 
+storage to the PVs that will use it.
 
-In AKS case, there are [4 storage classes](https://docs.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes) 
+In AKS case, there are [4 storage classes](https://docs.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes)
 which ones are shipped with the cluster:  
 
 ![](https://cldup.com/5rPIuW0aDb.png)
@@ -255,8 +254,8 @@ I am using [azurefile](https://github.com/bgarcial/elastic-cloud-aks/blob/stagin
 
 #### **IMPORTANT:**
 
-Since the PVs that are backing up the es-cluster inside the K8s cluster are  dynamically provisioned PersistentVolumes, 
-the default reclaim policy is "Delete". This means that a dynamically provisioned volume is automatically deleted when a user 
+Since the PVs that are backing up the es-cluster inside the K8s cluster are  dynamically provisioned PersistentVolumes,
+the default reclaim policy is "Delete". This means that a dynamically provisioned volume is automatically deleted when a user
 deletes the corresponding PersistentVolumeClaim.  
 
 ![](https://cldup.com/SoyAx-w-QY.png)
@@ -265,17 +264,15 @@ That policy [can be changed](https://kubernetes.io/docs/tasks/administer-cluster
 ):
 >This automatic behavior might be inappropriate if the volume contains precious data. In that case, it is more appropriate to use the "Retain" policy. With the "Retain" policy, if a user deletes a PersistentVolumeClaim, the corresponding PersistentVolume will not be deleted. Instead, it is moved to the Released phase, where all of its data can be manually recovered.
 
-
 ---
 
+## 3. Elasticsearch roles assigned
 
-## 3. Elasticsearch roles assigned 
-
-- The Elasticsearch roles assigned to the each cluster instance should be the same 
+- The Elasticsearch roles assigned to the each cluster instance should be the same
 
 All instance/elastic-search node have the same roles ([master, data, ingest](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L26-L28))
 
-## 4. Elasticsearch recovering data 
+## 4. Elasticsearch recovering data
 
 - An storage account blob container is created from the pipeline to be used to store elasticsearch snapshots.
 
@@ -288,10 +285,9 @@ to create and store elasticsearch snapshots somewhere outside the cluster.
 - [I will use the azure repository plugin in elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/7.15/repository-azure.html#repository-azure) to
 communicate with an azure blob storage container previously created:
 
-
 - Create a secret: This K8s secret needs to be created, it has the name of the storage account and the access key.
-    - The `STORAGE_ACCOUNT_NAME` variable is the name of the storage account, it is eck-terraform
-    - The `SA_ACCESS_KEY` variable is the access key of the storage account.
+  - The `STORAGE_ACCOUNT_NAME` variable is the name of the storage account, it is eck-terraform
+  - The `SA_ACCESS_KEY` variable is the access key of the storage account.
 
 ```
  k create secret generic azure-sa-credentials --from-literal=sa-client-id=$(STORAGE_ACCOUNT_NAME) --from-literal=sa-access-key=$(SA_ACCESS_KEY)
@@ -300,7 +296,7 @@ secret/azure-sa-credentials created
 
 - Then a couple of actions were added as `initContainer` to the `elastic-search-cluster.yaml` file called `install-plugins` and `add-sa-credentials`.
 
-That they do is to install the `repository-azure` plugin, [define the above variables as storage settings](https://www.elastic.co/guide/en/elasticsearch/plugins/master/repository-azure-usage.html#repository-azure-usage) 
+That they do is to install the `repository-azure` plugin, [define the above variables as storage settings](https://www.elastic.co/guide/en/elasticsearch/plugins/master/repository-azure-usage.html#repository-azure-usage)
 and consuming the secret created previously. This is [how it looks like](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L48-L71)
 
 - In addition a snapshot repository should be registered in the blob container. It is really just a storage location where the
@@ -327,32 +323,32 @@ backups will be stored:
 ```
 > curl -k -u "elastic:$PASSWORD" -X PUT "https://localhost:9200/_snapshot/eck-snapshots/snapshots_1?wait_for_completion=true"
 {
-	"snapshot": {
-		"snapshot": "snapshots_1",
-		"uuid": "SqxJMfVBR9yoVeFVv0-gLQ",
-		"repository": "eck-snapshots",
-		"version_id": 7150199,
-		"version": "7.15.1",
-		"indices": [".geoip_databases"],
-		"data_streams": [],
-		"include_global_state": true,
-		"state": "SUCCESS",
-		"start_time": "2021-11-07T21:45:20.120Z",
-		"start_time_in_millis": 1636321520120,
-		"end_time": "2021-11-07T21:45:24.723Z",
-		"end_time_in_millis": 1636321524723,
-		"duration_in_millis": 4603,
-		"failures": [],
-		"shards": {
-			"total": 1,
-			"failed": 0,
-			"successful": 1
-		},
-		"feature_states": [{
-			"feature_name": "geoip",
-			"indices": [".geoip_databases"]
-		}]
-	}
+ "snapshot": {
+  "snapshot": "snapshots_1",
+  "uuid": "SqxJMfVBR9yoVeFVv0-gLQ",
+  "repository": "eck-snapshots",
+  "version_id": 7150199,
+  "version": "7.15.1",
+  "indices": [".geoip_databases"],
+  "data_streams": [],
+  "include_global_state": true,
+  "state": "SUCCESS",
+  "start_time": "2021-11-07T21:45:20.120Z",
+  "start_time_in_millis": 1636321520120,
+  "end_time": "2021-11-07T21:45:24.723Z",
+  "end_time_in_millis": 1636321524723,
+  "duration_in_millis": 4603,
+  "failures": [],
+  "shards": {
+   "total": 1,
+   "failed": 0,
+   "successful": 1
+  },
+  "feature_states": [{
+   "feature_name": "geoip",
+   "indices": [".geoip_databases"]
+  }]
+ }
 }
 ```
 
@@ -381,13 +377,12 @@ in order to get a good overview of health of the es-cluster
 Under this idea, the elasticsearch exporter could be added to export this metrics so they can be fetched for
 prometheus for example. This [helm chart](https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-elasticsearch-exporter/README.md#install-chart) is a good thing to include in the solution
 
-
 ## Software needed
 
 - Azure account subscription
 - AZ cli tool configured with the azure account
 - Kubectl
-- Helm 
+- Helm
 - Terraform
 - Curl
 
@@ -412,12 +407,13 @@ The output includes credentials that you must protect. Be sure that you do not i
   "tenant": "4e6b0716-50ea-4664-90a8-998f60996c44"
 }
 ```
+
 - The `appId` value was taken to put it to the `ARM_CLIENT_ID` variable created and used in the pipeline
 - The `password` value was taken to put it to the `ARM_CLIENT_SECRET` variable created and used in the pipeline
 - The `tenant` value was taken to put it to the `ARM_TENANT_ID` variable created and used in the pipeline
 - In addition the subscriptionId was taken from azure portal to create the `ARM_SUBSCRIPTION_ID` variable created and used in the pipeline
 
-The above variables were used in the [terraform infrastructure pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=160&view=results) 
+The above variables were used in the [terraform infrastructure pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build/results?buildId=160&view=results)
 and in the [aks deployment pipeline](https://dev.azure.com/bgarcial/elastic-cloud-aks/_build?definitionId=9)
 
 In addition the following variable environments were created to be used in the aks deployment pipeline
@@ -432,20 +428,55 @@ In addition the following variable environments were created to be used in the a
 
 ---
 
-
 ## Deploying the stack
 
 Being this solution driven by the infra and aks deployments pipeline mentioned previously, every change on the respective files will trigger those pipelines
-and either the terraform workflow and the elasticsearch manifest files will be applied. 
+and either the terraform workflow and the elasticsearch manifest files will be applied.
 
 For more details about the pipelines please refer to:
+
 - [1.4 Description of the files](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/README.md#14-description-of-directoryfiles) section
 for infrastructure provisioning pipeline
 - [2. Deploying ES-cluster and scaling nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/README.md#but-how-the-nodes-are-autoscaled) section
 for aks deployment pipeline.
 
-
 ## Upgrading the solution
+
 Elasticsearch can usually be upgraded using a Rolling upgrade process so upgrading does not interrupt service. Rolling upgrades are supported:
 
-[Here](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-upgrading-eck.html#k8s-ga-upgrade), detailed info about how to upgrade the CRDs, the operator and the elastic stack 
+[Here](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-upgrading-eck.html#k8s-ga-upgrade), detailed info about how to upgrade the CRDs, the operator and the elastic stack
+
+---
+
+## Troubleshooting
+
+Sometimes when scaling up the elasticsearch nodes, the `initContainer` `add-sa-credentials` cannot perform
+the actions it does (create a keystore with the access key and name of the blob container),
+then we saw the new elasticsearch pod placed in a node, cannot initialize.
+
+If we inspect the initContainer  `add-sa-credentials` in that pod, we will see:
+
+```
+The elasticsearch keystore does not exist. Do you want to create it?
+```
+
+And deeping dive we will see this java exception is being thrown:
+
+```
+Exception in thread "main" java.lang.IllegalStateException: unable to read from standard input; is standard input open and a tty attached?
+```
+
+This is due that the way elasticsearch is done, the commands require a confirmation
+via `tty` about actions to add like executing `./bin/elasticsearch-keystore` command.
+
+If we add `--force` command the command will be executed without ask for a confirmation
+via cli. So something like this:
+
+```
+./bin/elasticsearch-keystore add --force azure.client.default.account
+./bin/elasticsearch-keystore add --force azure.client.default.key
+```
+
+A reference about this issue:
+
+- [Unable to read from standard input](https://discuss.elastic.co/t/unable-to-read-from-standard-input-is-standard-input-open-and-a-tty-attached/138449/8)

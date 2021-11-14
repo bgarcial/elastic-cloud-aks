@@ -158,7 +158,7 @@ stages:
         kubernetesCluster: $(kubernetesCluster)
         command: apply
         workingDirectory: /home/vsts/work/1/s/eck-manifests
-        arguments: -f elastic-search-cluster.yml
+        arguments: -f es-cluster.yml
     
     - task: Kubernetes@1
       displayName: Creating Elastic Search Snapshots
