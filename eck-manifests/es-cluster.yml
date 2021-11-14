@@ -37,17 +37,6 @@ spec:
                   operator: In
                   values:
                   - default
-          # podAntiAffinity:
-          #   preferredDuringSchedulingIgnoredDuringExecution:
-          #   - weight: 100
-          #     podAffinityTerm:
-          #       labelSelector:
-          #         matchLabels:
-          #           elasticsearch.k8s.elastic.co/cluster-name: es-picnic
-          #       topologyKey: kubernetes.io/hostname
-        # this changes the kernel setting on the node to allow ES to use mmap
-        # if you uncomment this init container you will likely also want to remove the
-        # "node.store.allow_mmap: false" setting above
         initContainers:
         - name: sysctl
           securityContext:
