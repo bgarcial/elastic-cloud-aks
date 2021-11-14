@@ -103,7 +103,7 @@ As long the cluster is provisioned, we can see the three nodes share many labels
 
 ![](https://cldup.com/yIzMQnuMOt.png)
 
-- In the same way I decided to deploy an elasticsearch cluster with [three nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L8-L9)
+- In the same way I decided to deploy an elasticsearch cluster with [three nodes](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-cluster.yml#L9)
 
 - I decided to implement the behavior that the elastic search cluster pods can only be placed on a node with a label whose key is `agentpool`
 and whose value is `default` (since it is [the name of the nodepool](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/terraform/main.tf#L70-L71)).
@@ -111,7 +111,7 @@ and whose value is `default` (since it is [the name of the nodepool](https://git
 - The `requiredDuringSchedulingIgnoredDuringExecution` type of affinity will allow me to enforce this rule always, it means if in runtime
 the value of the label `agentpool` change, and this rule is no longer met, the pods keeps running on that node.  
 
-- So in this way, by applying the [`nodeAffinity`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L32-L39)
+- So in this way, by applying the [`nodeAffinity`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-cluster.yml#L32-L39)
 is configured the guarantee that pods are going to be deployed only to `default` nodes, which ones are all the three worker nodes.
 
 Since nodes are an essential factor for autoscaling, let me elaborate a bit about scaling capabilities on the cluster here:
@@ -223,7 +223,7 @@ So if you go to <https://20.54.147.163:9200> you will get it as long overcome th
 
 ### 2.2. Storage class selected to elasticsearch PVs creation
 
-The elasticsearch cluster, by applying [`volumeClaimTemplates`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L11-L20)
+The elasticsearch cluster, by applying [`volumeClaimTemplates`](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-cluster.yml#L11-L20)
 configuration, it is creating a `pvc` resource for every elasticsearch pod created at every node:
 
 ![](https://cldup.com/aGHNF9G7rp.png)
@@ -238,7 +238,7 @@ which ones are shipped with the cluster:
 
 ![](https://cldup.com/5rPIuW0aDb.png)
 
-I am using [azurefile](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L20) storage class due to the following reasons:
+I am using [azurefile](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-cluster.yml#L20) storage class due to the following reasons:
 
 - It allows to [update at any time the size of the pv created](https://docs.microsoft.com/en-us/azure/aks/azure-disks-dynamic-pv#built-in-storage-classes
 ), since it has the `allowVolumeExpansion: true` attribute:
@@ -270,7 +270,7 @@ That policy [can be changed](https://kubernetes.io/docs/tasks/administer-cluster
 
 - The Elasticsearch roles assigned to the each cluster instance should be the same
 
-All instance/elastic-search node have the same roles ([master, data, ingest](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/elastic-search-cluster.yml#L26-L28))
+All instance/elastic-search node have the same roles ([master, data, ingest](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-cluster.yml#L26-L28))
 
 ## 4. Elasticsearch recovering data
 
