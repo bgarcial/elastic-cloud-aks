@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  name: kibana-ingress
+  namespace: default
+spec:
+  tls:
+    - hosts:
+      - kibana.bgarcial.me
+      secretName: letsencrypt-prod
+  rules:
+    - host: kibana.bgarcial.me
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: kibana-kb-http
+              port:
+                number: 5601

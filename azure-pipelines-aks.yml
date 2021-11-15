@@ -10,6 +10,9 @@ trigger:
     exclude:
     - README.md
     - terraform
+    - cert-manager
+    - kibana-ingress.yml
+    - kibana.yml
 
 stages:
 - stage: A

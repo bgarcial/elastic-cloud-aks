@@ -272,6 +272,158 @@ That policy [can be changed](https://kubernetes.io/docs/tasks/administer-cluster
 
 All instance/elastic-search node have the same roles ([master, data, ingest](https://github.com/bgarcial/elastic-cloud-aks/blob/staging/eck-manifests/es-cluster.yml#L26-L28))
 
+- Querying nodes via curl
+
+```
+curl -u "elastic:$PASSWORD" -k "https://20.54.147.163:9200/_cat/nodes?v"
+
+ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role   master name
+10.1.1.21            43          62   3    0.12    0.12     0.18 cdfhilmrstw -      elasticsearch-es-es-picnic-2
+10.1.2.184           34          61   3    0.31    0.59     0.44 cdfhilmrstw -      elasticsearch-es-es-picnic-0
+10.1.0.220           12          61   2    0.12    0.11     0.17 cdfhilmrstw *      elasticsearch-es-es-picnic-3
+10.1.0.100           26          62   2    0.12    0.11     0.17 cdfhilmrstw -      elasticsearch-es-es-picnic-1
+```
+
+- Detailed info about nodes via `_nodes` API.
+```
+PASSWORD=$(kubectl get secret elasticsearch-es-elastic-user -o go-template='{{.data.elastic | base64decode}}')
++ kubectl get secret elasticsearch-es-elastic-user -o go-template={{.data.elastic | base64decode}}
+
+ ~ -------------------------------------------------------------------------------------------------------------------- at 15:12:14
+> curl -u "elastic:$PASSWORD" -k "https://20.54.147.163:9200/_nodes/"
+```
+
+- Checking which indices we have in the cluster using `_cat` API and `_indices` command:
+
+-k, --insecure      Allow insecure server connections when using SSL
+
+```
+curl -u "elastic:$PASSWORD" -k "https://20.54.147.163:9200/_cat/indices?v"
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases EfzzRw3FQ1KmlYa0m10cNw   1   1         42            0     81.3mb         40.6mb
+```
+
+- Checking health of the cluster
+```
+curl -u "elastic:$PASSWORD" -k -XGET "https://20.54.147.163:9200/_cluster/health"
+
+{
+	"cluster_name": "elasticsearch",
+	"status": "green",
+	"timed_out": false,
+	"number_of_nodes": 4,
+	"number_of_data_nodes": 4,
+	"active_primary_shards": 1,
+	"active_shards": 2,
+	"relocating_shards": 0,
+	"initializing_shards": 0,
+	"unassigned_shards": 0,
+	"delayed_unassigned_shards": 0,
+	"number_of_pending_tasks": 0,
+	"number_of_in_flight_fetch": 0,
+	"task_max_waiting_in_queue_millis": 0,
+	"active_shards_percent_as_number": 100.0
+}
+```
+
+- A simple search query over indices
+In this case the `.geoip_databases` does not support 
+a body.
+An important thing to know, is that when including a request body, a "Content-Type" header
+must be specified.
+```
+curl -u "elastic:$PASSWORD"  -k -XGET "https://20.54.147.163:9200/.geoip_databases" -H 'Content-Type: application/json' -d'{ "query": { "match_all": {} } }'
+{"error":{"root_cause":[{"type":"illegal_argument_exception","reason":"request [GET /.geoip_databases] does not support having a body"}],"type":"illegal_argument_exception","reason":"request [GET /.geoip_databases] does not support having a body"},"status":400}%
+```
+But also it is just for systems operations
+```
+> curl -u "elastic:$PASSWORD"  -k -XGET "https://20.54.147.163:9200/.geoip_databases"
+{"error":{"root_cause":[{"type":"illegal_argument_exception","reason":"Indices [.geoip_databases] use and access is reserved for system operations"}],"type":"illegal_argument_exception","reason":"Indices [.geoip_databases] use and access is reserved for system operations"},"status":400}%
+```
+
+- So, let's create and index:
+
+```
+curl -u "elastic:$PASSWORD"  -k -XPUT "https://20.54.147.163:9200/my-index-000001?pretty"
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "my-index-000001"
+}
+```
+
+- So let's query the indices
+```
+curl -u "elastic:$PASSWORD" -k "https://20.54.147.163:9200/_cat/indices?v"
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases EfzzRw3FQ1KmlYa0m10cNw   1   1         42            0     81.3mb         40.6mb
+green  open   my-index-000001  Y-Tzcb2ARmOE4-xx8ZYLvg   1   1          0            0       416b           208b
+```
+
+- Adding a document:
+
+```
+curl -u "elastic:$PASSWORD" -k -X POST "https://20.54.147.163:9200/my-index-000001/_doc?pretty" -H 'Content-Type: application/json' -d'
+{
+  "@timestamp": "2099-05-06T16:21:15.000Z",
+  "event": {
+    "original": "192.0.2.42 - - [06/May/2099:16:21:15 +0000] \"GET /images/bg.jpg HTTP/1.0\" 200 24736"
+  }
+}
+'
+
+{
+  "_index" : "my-index-000001",
+  "_type" : "_doc",
+  "_id" : "E84wJH0Bo5Zp2c2i26wy",
+  "_version" : 1,
+  "result" : "created",
+  "_shards" : {
+    "total" : 2,
+    "successful" : 2,
+    "failed" : 0
+  },
+  "_seq_no" : 0,
+  "_primary_term" : 1
+}
+```
+
+```
+curl -u "elastic:$PASSWORD" -k -X POST "https://20.54.147.163:9200/my-index-000001/_doc?pretty" -H 'Content-Type: application/json' -d'
+{
+  "name": "Bernardo",
+  "org": "Royal HaskoningDHV",
+  "test": "Search via curl"
+}
+'
+{
+  "_index" : "my-index-000001",
+  "_type" : "_doc",
+  "_id" : "Fc41JH0Bo5Zp2c2iX6zL",
+  "_version" : 1,
+  "result" : "created",
+  "_shards" : {
+    "total" : 2,
+    "successful" : 2,
+    "failed" : 0
+  },
+  "_seq_no" : 2,
+  "_primary_term" : 1
+} 
+```
+
+- Querying a document with the `Search` word:
+
+```
+curl -u "elastic:$PASSWORD" -k -X GET "https://20.54.147.163:9200/my-index-000001/type/_search?q=Search"
+{"took":1811,"timed_out":false,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0},"hits":{"total":{"value":0,"relation":"eq"},"max_score":null,"hits":[]}}
+```
+
+
+
+
+---
+
 ## 4. Elasticsearch recovering data
 
 - An storage account blob container is created from the pipeline to be used to store elasticsearch snapshots.
