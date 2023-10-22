@@ -41,10 +41,10 @@ az storage container create --name $CONTAINER_TF_STATE_NAME --account-name $STOR
 echo "storage_account_name created: $STORAGE_ACCOUNT_NAME"
 echo "An storage blob container called $CONTAINER_TF_STATE_NAME  was created to store the terraform.tfstate staging file."
 
-# Creating a blob container to store eck snapshots
 # this blob container will receive the backups from 
 CONTAINER_ECK_SNAPSHOTS=eck-snapshots
 az storage container create --name $CONTAINER_ECK_SNAPSHOTS --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
 
 echo "storage_account_name created: $STORAGE_ACCOUNT_NAME"
 echo "An storage blob container called $CONTAINER_ECK_SNAPSHOTS  was created to store the elastic cloud snapshots."
+# Creating a blob container to store eck snapshots

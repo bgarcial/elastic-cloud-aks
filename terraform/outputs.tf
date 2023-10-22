@@ -51,6 +51,6 @@ CONFIGURE
 
 output "my_ip_address" {
   value = <<EOF
-export MY_IP_ADDR="${chomp(data.http.myip.body)}/32"
+export MY_IP_ADDR="${chomp(data.http.myip.response_body)}/32"
 EOF  
 }

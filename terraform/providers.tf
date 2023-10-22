@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.82.0"
+      version = ">= 3.77.0"
     }
     random = {
       source = "hashicorp/random"
@@ -26,9 +26,9 @@ provider "azurerm" {
 # Block to play around with the state if needed
 terraform {
   backend "azurerm" {
-    # resource_group_name  = "eck-terraform-envs-states"
-    # storage_account_name = "eckterraform"
-    # container_name       = "eck-tf-state"
-    # key                  = "staging.terraform.tfstate" 
+    resource_group_name  = "eck-terraform-envs-states"
+    storage_account_name = "eckterraform"
+    container_name       = "eck-tf-state"
+    key                  = "staging.terraform.tfstate" 
   }
 }
