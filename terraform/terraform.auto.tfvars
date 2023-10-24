@@ -1,6 +1,11 @@
-org                      = "pcn"
+org                      = "bgl"
 app                      = "eck"
-environment              = "stag"
+#environment              = "stag"
 k8s_version              = "1.28.0"
 k8s_orchestrator_version = "1.28.0"
 k8s_node_count           = 3
+k8s_node_size            = "Standard_D4_v3"
+location                 = "West Europe"
+address_space            = ["10.0.0.0/8"]
+subnet_prefixes          = ["10.1.0.0/16", "10.2.0.0/16"]
+subnet_names             = ["aks-subnet", "subnet"]
