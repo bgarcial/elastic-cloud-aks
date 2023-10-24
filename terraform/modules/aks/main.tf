@@ -63,7 +63,9 @@ module "azure_aks" {
         os_disk_size_gb      = 128
         os_sku               = "Ubuntu"
         type                 = "VirtualMachineScaleSets"
-        vnet_subnet_id       = var.vnet_subnet_id
+        # vnet_subnet_id       = var.vnet_subnet_id
+        # Code="InvalidParameter" Message="Cannot use a custom subnet because agent pool nodepool is 
+        # using a managed subnet. Please omit the vnetSubnetID parameter from the re
         orchestrator_version = var.k8s_orchestrator_version
     }
     # another node pool
@@ -82,7 +84,7 @@ module "azure_aks" {
   # that use Kubernetes Service Accounts. When you enable Azure AD-based 
   # RBAC, you can define Kubernetes roles and role bindings that are 
   # associated directly with Azure AD identities (both users and groups). This enables more fine-grained control and governance over who can do what within your cluster.     
-  rbac_aad = true
+  # rbac_aad = true
   role_based_access_control_enabled = true # rbac_enabled
 
   
@@ -90,7 +92,7 @@ module "azure_aks" {
   # It allows you to use Azure AD identities for access to the 
   # Kubernetes API server. It's mostly used for user-level access 
   #   
-  rbac_aad_azure_rbac_enabled = true # azure_rbac_enabled
+  # rbac_aad_azure_rbac_enabled = true # azure_rbac_enabled
 
 
   # rbac_aad_managed: When this is set to true, it indicates that the Azure AD integration is managed by 
