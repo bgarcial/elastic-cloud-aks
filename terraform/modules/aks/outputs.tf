@@ -6,6 +6,11 @@ output "resource_group_location" {
   value = azurerm_resource_group.aks_rg.location
 }
 
+output "cluster_id" {
+  value = module.azure_aks.aks_id
+  description = "The ID of the AKS cluster"
+}
+
 output "kubernetes_cluster_name" {
   value = module.azure_aks.aks_name
 }

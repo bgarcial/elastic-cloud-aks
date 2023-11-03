@@ -47,7 +47,7 @@ module "azure_aks" {
   # authentication, thereby reusing your existing identity setup in Azure.
   # This is a valuable feature for organizations looking to implement tight security controls on how 
   # their Kubernetes workloads interact with Azure services.
-  workload_identity_enabled = true
+  # workload_identity_enabled = true
   oidc_issuer_enabled = true
 
   node_pools = {
@@ -83,26 +83,32 @@ module "azure_aks" {
   # In a regular Kubernetes RBAC, you define roles and role bindings 
   # that use Kubernetes Service Accounts. When you enable Azure AD-based 
   # RBAC, you can define Kubernetes roles and role bindings that are 
-  # associated directly with Azure AD identities (both users and groups). This enables more fine-grained control and governance over who can do what within your cluster.     
-  # rbac_aad = true
+  # associated directly with Azure AD identities (both users and groups). 
+  # This enables more fine-grained control and governance over who can do what within your cluster.     
+  rbac_aad = false # azure_active_directory_role_based_access_control on normal provisioner
+
+  # Enable K8s native RBAC in the cluster
   role_based_access_control_enabled = true # rbac_enabled
 
   
   # This integrates Azure AD with Kubernetes RBAC. 
   # It allows you to use Azure AD identities for access to the 
   # Kubernetes API server. It's mostly used for user-level access 
-  #   
-  # rbac_aad_azure_rbac_enabled = true # azure_rbac_enabled
+  # azure_active_directory_role_based_access_control
+  # When set to true, it enables Azure AD-based Role-Based Access Control (RBAC) 
+  # for the AKS cluster. This feature integrates Azure AD groups and user accounts 
+  # directly with Kubernetes RBAC.  
+  # rbac_aad_azure_rbac_enabled = true # azure_rbac_enabled 
 
 
   # rbac_aad_managed: When this is set to true, it indicates that the Azure AD integration is managed by 
   # Azure itself. I won't need to specify the Azure AD client and server app details manually; 
   # Azure will manage those details for me. 
-  rbac_aad_managed   = true
+  # rbac_aad_managed   = true
 
   # vnet_subnet_id     = var.vnet_subnet_id
   
-  rbac_aad_tenant_id = var.tenant_id
+  # rbac_aad_tenant_id = var.tenant_id
 
   # log_analytics_workspace_id = azurerm_log_analytics_workspace.eck-monitor.id
   tags                       = var.tags
